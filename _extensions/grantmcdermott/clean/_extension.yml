@@ -6,8 +6,8 @@ contributes:
   formats:
     revealjs:
       theme: [default, clean.scss]
-      title-slide-attributes:
-        data-background-image: images/main.jpg
+      # title-slide-attributes:
+      #   data-background-image: images/main.jpg
       transition: slide
       menu:
         side: left
