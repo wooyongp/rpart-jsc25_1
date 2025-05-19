@@ -2,6 +2,7 @@
 title: Recursive Partitioning <br> for Heterogeneous Causal Effects
 subtitle: Susan Athey and Guido Imbens(2016)
 format: coeos-revealjs
+html-math-method: katex
 ---
 
 
@@ -11,7 +12,9 @@ Don't stress. We are going to start from scratch.
 
 ## Causal Inference with binary treatment
 
-- SUTVA
+Research Question: How does Covid-19 reduce 
+
+
 
 ## Counterfactuals and the treatment effect
 
@@ -38,3 +41,241 @@ $\rightarrow$ can maybe help us set up hypothesis!
 
 
 ## Tree-based models: adaptive vs honest
+
+
+# Honest Inference for Outcome Averages
+
+## CART vs Honest
+
+### CART
+
+$$ 
+\hat{Y}_{i,C} \bigl(S^{tr}, \Pi_C(S^{tr})) = \sum_{\mathcal{l} \in \Pi(S^{tr})} \hat{\mu_\mathcal{l}} (x; S^{tr}, \Pi_C(S^{tr})) 
+$$
+
+### Honest
+
+$$
+\hat{Y}_{i,H} \bigl(S^{tr}, \Pi_H(S^{tr})) = \sum_{\mathcal{l} \in \Pi(S^{tr})} \hat{\mu_\mathcal{l}} (x; S^{est}, \Pi_H(S^{tr})) 
+$$
+
+where 
+$$\hat{\mu}_\mathcal{l}(x; S. \Pi) = \frac{1}{\#(i \in S: X_i \in \mathcal{l}(x;\Pi))}\sum_{i\in S: X_i \in \mathcal{l}(x;\Pi)} Y_i
+$$
+
+## Problems with CART
+
+- Potential bias in the leaf estimates
+- does not consider variance in tree splitting
+
+### Example (TBU)
+
+::: {.panel-tabset}
+
+### Figure
+.
+
+### Equation
+ 
+ Let $\mathbb{X} = \{L,R\}$
+
+Recursive partitioning simply does the following:
+
+\begin{align*}
+    \pi(S)= \begin{cases}
+    \quad \{ \{L,R \} \} & \text{if} \quad \bar{Y}_L -\bar{Y}_R \leq c \\
+    \quad \{ \{L\}, \{R \} \} & \text{if} \quad \bar{Y}_L -\bar{Y}_R > c
+    \end{cases}
+\end{align*}
+
+If we condition on $\bar{Y}_L -\bar{Y}_R >c$, we expect bias.
+:::
+
+## The Honest Criterion
+
+\begin{align*}
+        \text{MSE}_{\mu}(S^{te},S^{est},\Pi) &= \frac{1}{\#(S^{te})}\sum\limits_{i \in S^{te}}\left[(Y_i - \hat{\mu}(X_i;S^{est},\Pi))^2-Y_i^2\right]\\
+        \text{EMSE}_\mu &= \mathbb{E}_{S^{te},S^{est}}\left[\text{MSE}_\mu(S^{te},S^{est},\Pi)\right]
+\end{align*}
+
+Then our goal is to find $\pi$ that maximizes the **Honest Criterion**:
+\begin{equation*}
+        Q^H(\pi) = -\mathbb{E}_{S^{te},S^{est},S^{tr}}\biggl[MSE_\mu\bigl(S^{te},S^{est},\pi(S^{tr})\bigr)\biggr]
+\end{equation*}
+
+
+## The Honest Target
+- Given $\Pi$, we can expand $EMSE_\mu(\Pi) :
+    \begin{equation*}
+            -\text{EMSE}_\mu=\mathbb{E}_{X_i}\left[\mu^2(X_i;\Pi)\right] - \mathbb{E}_{S^{est},X_i}\biggl[\mathbb{V}\bigl(\hat{\mu^2}(X_i;S^{est},\Pi)\bigr)\biggr]
+    \end{equation*}
+- How can we estimate each of these terms using $\quad S^{tr}\quad$ and $\quad N^{est}$?
+
+## Honest Target: Estimation
+
+$$
+     -\text{EMSE}_\mu=\mathbb{E}_{X_i}\left[\mu^2(X_i;\Pi)\right] - \mathbb{E}_{S^{est},X_i}\biggl[\mathbb{V}\bigl(\hat{\mu^2}(X_i;S^{est},\Pi)\bigr)\biggr]
+$$
+
+::: {.panel-tabset}
+
+### first term
+
+$$
+            \hat{\mathbb{E}}\left[\mu^2(x;\Pi)\right] = \hat{\mu}^2(x;S^{tr},\Pi)-\frac{S^2_{S^{tr}}(\mathcal{l}(x;\Pi))}{N^{tr}(\mathcal{l}(x;\Pi))}
+$$
+
+
+
+### second term
+
+$$
+            \hat{\mathbb{V}}(\hat{\mu}(x;S^{est},\Pi)) = \frac{S^2_{S^{tr}}(l(x;\Pi))}{N^{est}(l(x;\Pi))}
+$$
+
+Assuming leaf shares between $S^{tr}$ and $S^{est}$, we can obtain
+
+$$
+            \hat{\mathbb{E}}\left[\mathbb{V}(\hat{\mu}(X_i;S^{est},\Pi))|i \in S^{te}\right] = \frac{1}{N^{est}}\sum\limits_{\mathcal{l} \in \Pi}S^2_{S^{tr}}(\mathcal{l})
+$$
+
+:::
+
+::: {.fragment}
+
+All combined we obtain unbiased estimator for honest target:
+\begin{align*}
+        \begin{aligned}
+        -\widehat{\text{EMSE}_\mu}(S^{tr},N^{est},\Pi) =\qquad \qquad \qquad \qquad \qquad \qquad \qquad \qquad 
+        \\    \frac{1}{N^{tr}} \sum\limits_{i \in S^{tr}}\hat{\mu^2}(X_i;S^{tr},\Pi)-\left(\frac{1}{N^{tr}}+\frac{1}{N^{est}}\right)\cdot\sum\limits_{l \in \Pi}S^2_{S^{tr}}(l(x;\Pi))
+        \end{aligned}
+\end{align*}
+
+:::
+
+## CART vs Honest
+
+### CART Target
+
+\begin{equation*}
+            -\text{MSE}_{\mu}(S^{tr},S^{tr},\Pi) = \frac{1}{N^{tr}} \sum\limits_{i \in S^{tr}}\hat{\mu^2}(X_i;S^{tr},\Pi)
+\end{equation*}
+
+
+### Honest Target
+\begin{equation*}
+        \begin{aligned}
+        -\widehat{\text{EMSE}_\mu}(S^{tr},N^{est},\Pi) =\qquad \qquad \qquad \qquad \qquad \qquad \qquad \qquad 
+        \\    \frac{1}{N^{tr}} \sum\limits_{i \in S^{tr}}\hat{\mu^2}(X_i;S^{tr},\Pi)-\left(\frac{1}{N^{tr}}+\frac{1}{N^{est}}\right)\cdot\sum\limits_{l \in \Pi}S^2_{S^{tr}}(l(x;\Pi))
+        \end{aligned}
+\end{equation*}
+
+::: {.fragment}
+
+### Pros and Cons of Honest
+- Pro: 
+    * Honest target not only removes potential bias in leaf estimates but also considers variance reduction in splitting.
+    * enables statistical testing
+- Con: smaller sample size
+
+
+:::
+
+
+# Honest Inference for Treatment Effects
+
+- Population average outcome "in a leaf" and its estimator
+
+\begin{align*}
+            &\mu(w,x;\Pi) \equiv \mathbb{E}[Y_i(w)|X_i \in \mathcal{l}(x;\Pi)] \notag \\
+            &\hat{\mu}(w,x;\mathcal{S},\Pi) \equiv \frac{1}{\# (\{i \in \mathcal{S}_w:X_i\in\mathcal{l}(x;\Pi)\})} \sum_{i \in \mathcal{S}_w:X_i\in\mathcal{l}(x;\Pi)}Y_i^{obs}
+\end{align*}
+
+- Average causal effect "in a leaf" and its estimator
+
+\begin{align*}
+        &\tau(x;\Pi) \equiv \mathbb{E}[Y_i(1)-Y_i(0)|X_i \in \mathcal{l}(x;\Pi)] \notag \\
+        &\hat{\tau}(x;\mathcal{S},\Pi) \equiv \hat{\mu}(1,x;\mathcal{S},\Pi)-\hat{\mu}(0,x;\mathcal{S},\Pi) \notag
+\end{align*}
+
+
+## CART For Heterogeneous Treatment Effects?
+
+1. Model and Estimation
+    - Model type: Tree structure with  $\mathcal{S}^{\color{blue}{tr}}$ (Grow and prune)
+    - Estimate with $\mathcal{S}^{\color{blue}{tr}}$.
+    $$
+            \hat{\tau}(x;\mathcal{S}^{\color{blue} \text{tr}},\Pi) = \hat{\mu}(1,x;\mathcal{S}^{\color{blue}{tr}},\Pi)-\hat{\mu}(0,x;\mathcal{S}^{\color{blue}{tr}},\Pi)
+    $$
+
+2.  Criterion Function (for fixed complexity parameter $\lambda$)
+    - In-sample Goodness-of-fit function: {\color{blue}NOT FEASIBLE}
+    $$
+            Q^{is}=-MSE=-\frac{1}{N}\sum_{i=1}^{N}(\tau_i-\hat{\tau}_i)^2
+    $$
+    - Criterion: $Q^{crit}=Q^{is}-\lambda\cdot\#|\Pi|$
+    
+3.  Cross-validation approach with $\mathcal{S}^{{\color{blue} \text{te}}}$
+    - Approach: cv on grid of complexity parameters. Select complexity parameter $\lambda$ with the highest out-of-sample goodness-of-fit ${Q}^{\text{os}}$.
+    - ${Q}^{\text{os}}=-MSE$
+
+
+## Problems with using CART for HTE and its replacement
+
+- GOAL: Estimate within-leaf treatment effect 
+
+- HOW? maximize $-MSE_{\tau}$
+
+- {\color{blue}Problem 1}: $\tau_i$'s are unobservable
+    * Under our framework, estimate $-MSE_\tau$ with $-\hat{MSE}_\tau$(unbiased)
+
+- {\color{blue}Problem 2}: NOT Honest (e.g.  $\overline{\tau_L}-\overline{\tau_R}$  with condition $\geq c$ is biased)
+    * Split sample; one to build tree, the other to estimate effects.
+
+- NEW criterion
+    \begin{align*}
+        -\mathbb{E}_{\mathcal{S}^{\color{blue}{te}}, \mathcal{S}^{\color{blue}{est}}}[\sum_{i\in \mathcal{S}^{\color{blue}{te}}}(\tau_i-\hat{\tau}(X_i;\mathcal{S}^{\color{blue}est}))^2]
+    \end{align*}
+
+## New Criterion for Honest Causal Tree
+
+Given $\Pi$,
+
+\begin{align*}
+        \text{MSE}_{\tau}(\mathcal{S^{{\color{red}\text{te}}}},\mathcal{S^{{\color{red}\text{est}}}}) &\equiv \frac{1}{\text{N}^{\color{red}\text{te}}}\sum_{i\in \mathcal{S^{{\color{red}\text{te}}}}}(\tau_i-\hat{\tau}(X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi))^2 \notag \\
+        &= \frac{1}{\text{N}^{\color{red}\text{te}}}\sum_{i\in \mathcal{S^{{\color{red}\text{te}}}}}(\tau_i^2-2\tau_i\cdot \hat{\tau}(X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi)+\hat{\tau}^2 (X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi)) \\
+        EMSE &=\mathbb{E}_{\mathcal{S}^{\color{red}{te}}, \mathcal{S}^{\color{red}{est}}}[\sum_{i\in \mathcal{S}^{\color{red}{te}}}(\tau_i-\hat{\tau}(X_i;\mathcal{S}^{\color{red}est}))^2] \\
+        &= \mathbb{V}_{\mathcal{S}^{\text{est}}, X_i}[\hat{\tau}(X_i; \mathcal{S}^{\text{est}},\Pi)]-\mathbb{E}_{X_i}[\tau^2(X_i;\Pi)]+\cancel{\mathbb{E}[\tau_i^2]}
+\end{align*}
+
+- Again, the last equality holds by the "honesty" that $\mathcal{S}^{est}\perp \Pi$
+
+- Why $\mathbb{V}[\hat{\tau}]$ in $EMSE$? 
+
+    We care not only about this sample but also about other possible samples, so $\mathbb{V}[\hat{\tau}]$ is taken into account.
+    
+## Estimating the Criterion
+
+- In-sample goodness-of-fit measure $-\hat{EMSE}_{\tau}(\mathcal{S^\text{tr}},\Pi) $
+    \begin{align*}
+         \equiv 
+        \frac{1}{\text{N}^\text{tr}} \sum_{i\in\mathcal{S^\text{tr}}} \hat{\tau}^2(X_i;\mathcal{S}^{tr},\Pi)
+        -(\frac{2}{\text{N}^{\text{tr}}})\sum_{\ell \in \Pi}(\frac{S^2_{\mathcal{S}^\text{tr}_\text{treat}}(\ell)}{p}+\frac{S^2_{\mathcal{S}^\text{tr}_\text{control}}(\ell)}{1-p})
+\end{align*}
+where $p=N^\text{tr}_\text{treat}/N^\text{tr}$
+
+- Note that $S^2$'s are the sample variances of {\color{blue}mean estimates}, {\color{red}NOT} thetreatment effects.
+- out-of-sample goodness-of-fit measure: $\hat{EMSE}_\tau(\mathcal{S^{\text{tr, cv}}},\Pi)$
+
+
+## Interpretation of the Criterion
+- The first term {\color{blue}rewards} high heterogeneity in treatment effects
+    \begin{align*}
+        \frac{1}{\text{N}^\text{tr}} \sum_{i\in\mathcal{S^\text{tr}}} \hat{\tau}^2(X_i;\mathcal{S}^{tr},\Pi)
+    \end{align*}
+- The second term {\color{red}penalizes} a partition that creates variance in leaf estimates (e.g. small leaves)
+        \begin{align*}
+             -\frac{2}{\text{N}^{\text{tr}}}\sum_{\ell \in \Pi}(\frac{S^2_{\mathcal{S}^\text{tr}_\text{treat}}(\ell)}{p}+\frac{S^2_{\mathcal{S}^\text{tr}_\text{control}}(\ell)}{1-p})
+        \end{align*}
+- Two terms are NOT proportional
+    (c.f. Terms in $\hat{EMSE}_\mu$ are proportional)

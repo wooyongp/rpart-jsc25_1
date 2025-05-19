@@ -6,7 +6,7 @@
 <script src="slides_files/libs/quarto-html/tippy.umd.min.js"></script>
 <link href="slides_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="slides_files/libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="slides_files/libs/quarto-html/quarto-syntax-highlighting-dark-e2182856f2c32102dd26b05a5ef16cb5.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+<link href="slides_files/libs/quarto-html/quarto-syntax-highlighting-e2182856f2c32102dd26b05a5ef16cb5.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
   <meta name="generator" content="quarto-1.7.30">
 
   <title>Recursive Partitioning   for Heterogeneous Causal Effects</title>
@@ -28,7 +28,23 @@
       vertical-align: middle;
     }
   </style>
-  <link rel="stylesheet" href="slides_files/libs/revealjs/dist/theme/quarto-a963383d48bd4fead9ff2571c9c1d9cb.css">
+  <link rel="stylesheet" href="slides_files/libs/revealjs/dist/theme/quarto-e474469c1d1a09617bb6225c0d143e8a.css">
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
   <link href="slides_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="slides_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="slides_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -122,7 +138,7 @@
   </style>
   <link rel="shortcut icon" href="https://raw.githubusercontent.com/mcanouil/hex-stickers/main/SVG/coeos.svg">
 </head>
-<body class="quarto-dark">
+<body class="quarto-light">
   <div class="reveal">
     <div class="slides">
 
@@ -141,9 +157,7 @@
 </section>
 <section id="causal-inference-with-binary-treatment" class="slide level2">
 <h2>Causal Inference with binary treatment</h2>
-<ul>
-<li>SUTVA</li>
-</ul>
+<p>Research Question: How does Covid-19 reduce</p>
 </section>
 <section id="counterfactuals-and-the-treatment-effect" class="slide level2">
 <h2>Counterfactuals and the treatment effect</h2>
@@ -167,10 +181,231 @@
 <li>Penalization</li>
 <li>Cross-Validation</li>
 </ul>
-<p>ML performs great in selecting adequate models. <span class="math inline">\(\rightarrow\)</span> can maybe help us set up hypothesis!</p>
+<p>ML performs great in selecting adequate models. <span class="math inline">\rightarrow</span> can maybe help us set up hypothesis!</p>
 </section>
 <section id="tree-based-models-adaptive-vs-honest" class="slide level2">
 <h2>Tree-based models: adaptive vs honest</h2>
+</section></section>
+<section>
+<section id="honest-inference-for-outcome-averages" class="title-slide slide level1 center">
+<h1>Honest Inference for Outcome Averages</h1>
+
+</section>
+<section id="cart-vs-honest" class="slide level2">
+<h2>CART vs Honest</h2>
+<h3 id="cart">CART</h3>
+<p><span class="math display">
+\hat{Y}_{i,C} \bigl(S^{tr}, \Pi_C(S^{tr})) = \sum_{\mathcal{l} \in \Pi(S^{tr})} \hat{\mu_\mathcal{l}} (x; S^{tr}, \Pi_C(S^{tr}))
+</span></p>
+<h3 id="honest">Honest</h3>
+<p><span class="math display">
+\hat{Y}_{i,H} \bigl(S^{tr}, \Pi_H(S^{tr})) = \sum_{\mathcal{l} \in \Pi(S^{tr})} \hat{\mu_\mathcal{l}} (x; S^{est}, \Pi_H(S^{tr}))
+</span></p>
+<p>where <span class="math display">\hat{\mu}_\mathcal{l}(x; S. \Pi) = \frac{1}{\#(i \in S: X_i \in \mathcal{l}(x;\Pi))}\sum_{i\in S: X_i \in \mathcal{l}(x;\Pi)} Y_i
+</span></p>
+</section>
+<section id="problems-with-cart" class="slide level2">
+<h2>Problems with CART</h2>
+<ul>
+<li>Potential bias in the leaf estimates</li>
+<li>does not consider variance in tree splitting</li>
+</ul>
+<h3 id="example-tbu">Example (TBU)</h3>
+<div class="panel-tabset">
+<ul id="tabset-1" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-1-1">Figure</a></li><li><a href="#tabset-1-2">Equation</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1">
+<p>.</p>
+</div>
+<div id="tabset-1-2">
+<p>Let <span class="math inline">\mathbb{X} = \{L,R\}</span></p>
+<p>Recursive partitioning simply does the following:</p>
+<p><span class="math display">\begin{align*}
+    \pi(S)= \begin{cases}
+    \quad \{ \{L,R \} \} &amp; \text{if} \quad \bar{Y}_L -\bar{Y}_R \leq c \\
+    \quad \{ \{L\}, \{R \} \} &amp; \text{if} \quad \bar{Y}_L -\bar{Y}_R &gt; c
+    \end{cases}
+\end{align*}</span></p>
+<p>If we condition on <span class="math inline">\bar{Y}_L -\bar{Y}_R &gt;c</span>, we expect bias.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="the-honest-criterion" class="slide level2">
+<h2>The Honest Criterion</h2>
+<p><span class="math display">\begin{align*}
+        \text{MSE}_{\mu}(S^{te},S^{est},\Pi) &amp;= \frac{1}{\#(S^{te})}\sum\limits_{i \in S^{te}}\left[(Y_i - \hat{\mu}(X_i;S^{est},\Pi))^2-Y_i^2\right]\\
+        \text{EMSE}_\mu &amp;= \mathbb{E}_{S^{te},S^{est}}\left[\text{MSE}_\mu(S^{te},S^{est},\Pi)\right]
+\end{align*}</span></p>
+<p>Then our goal is to find <span class="math inline">\pi</span> that maximizes the <strong>Honest Criterion</strong>: <span class="math display">\begin{equation*}
+        Q^H(\pi) = -\mathbb{E}_{S^{te},S^{est},S^{tr}}\biggl[MSE_\mu\bigl(S^{te},S^{est},\pi(S^{tr})\bigr)\biggr]
+\end{equation*}</span></p>
+</section>
+<section id="the-honest-target" class="slide level2">
+<h2>The Honest Target</h2>
+<ul>
+<li>Given <span class="math inline">\Pi</span>, we can expand $EMSE_() : <span class="math display">\begin{equation*}
+          -\text{EMSE}_\mu=\mathbb{E}_{X_i}\left[\mu^2(X_i;\Pi)\right] - \mathbb{E}_{S^{est},X_i}\biggl[\mathbb{V}\bigl(\hat{\mu^2}(X_i;S^{est},\Pi)\bigr)\biggr]
+  \end{equation*}</span></li>
+<li>How can we estimate each of these terms using <span class="math inline">\quad S^{tr}\quad</span> and <span class="math inline">\quad N^{est}</span>?</li>
+</ul>
+</section>
+<section id="honest-target-estimation" class="slide level2">
+<h2>Honest Target: Estimation</h2>
+<p><span class="math display">
+     -\text{EMSE}_\mu=\mathbb{E}_{X_i}\left[\mu^2(X_i;\Pi)\right] - \mathbb{E}_{S^{est},X_i}\biggl[\mathbb{V}\bigl(\hat{\mu^2}(X_i;S^{est},\Pi)\bigr)\biggr]
+</span></p>
+<div class="panel-tabset">
+<ul id="tabset-2" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-2-1">first term</a></li><li><a href="#tabset-2-2">second term</a></li></ul>
+<div class="tab-content">
+<div id="tabset-2-1">
+<p><span class="math display">
+            \hat{\mathbb{E}}\left[\mu^2(x;\Pi)\right] = \hat{\mu}^2(x;S^{tr},\Pi)-\frac{S^2_{S^{tr}}(\mathcal{l}(x;\Pi))}{N^{tr}(\mathcal{l}(x;\Pi))}
+</span></p>
+</div>
+<div id="tabset-2-2">
+<p><span class="math display">
+            \hat{\mathbb{V}}(\hat{\mu}(x;S^{est},\Pi)) = \frac{S^2_{S^{tr}}(l(x;\Pi))}{N^{est}(l(x;\Pi))}
+</span></p>
+<p>Assuming leaf shares between <span class="math inline">S^{tr}</span> and <span class="math inline">S^{est}</span>, we can obtain</p>
+<p><span class="math display">
+            \hat{\mathbb{E}}\left[\mathbb{V}(\hat{\mu}(X_i;S^{est},\Pi))|i \in S^{te}\right] = \frac{1}{N^{est}}\sum\limits_{\mathcal{l} \in \Pi}S^2_{S^{tr}}(\mathcal{l})
+</span></p>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p>All combined we obtain unbiased estimator for honest target: <span class="math display">\begin{align*}
+        \begin{aligned}
+        -\widehat{\text{EMSE}_\mu}(S^{tr},N^{est},\Pi) =\qquad \qquad \qquad \qquad \qquad \qquad \qquad \qquad
+        \\    \frac{1}{N^{tr}} \sum\limits_{i \in S^{tr}}\hat{\mu^2}(X_i;S^{tr},\Pi)-\left(\frac{1}{N^{tr}}+\frac{1}{N^{est}}\right)\cdot\sum\limits_{l \in \Pi}S^2_{S^{tr}}(l(x;\Pi))
+        \end{aligned}
+\end{align*}</span></p>
+</div>
+</section>
+<section id="cart-vs-honest-1" class="slide level2">
+<h2>CART vs Honest</h2>
+<h3 id="cart-target">CART Target</h3>
+<p><span class="math display">\begin{equation*}
+            -\text{MSE}_{\mu}(S^{tr},S^{tr},\Pi) = \frac{1}{N^{tr}} \sum\limits_{i \in S^{tr}}\hat{\mu^2}(X_i;S^{tr},\Pi)
+\end{equation*}</span></p>
+<h3 id="honest-target">Honest Target</h3>
+<p><span class="math display">\begin{equation*}
+        \begin{aligned}
+        -\widehat{\text{EMSE}_\mu}(S^{tr},N^{est},\Pi) =\qquad \qquad \qquad \qquad \qquad \qquad \qquad \qquad
+        \\    \frac{1}{N^{tr}} \sum\limits_{i \in S^{tr}}\hat{\mu^2}(X_i;S^{tr},\Pi)-\left(\frac{1}{N^{tr}}+\frac{1}{N^{est}}\right)\cdot\sum\limits_{l \in \Pi}S^2_{S^{tr}}(l(x;\Pi))
+        \end{aligned}
+\end{equation*}</span></p>
+<div class="fragment">
+<h3 id="pros-and-cons-of-honest">Pros and Cons of Honest</h3>
+<ul>
+<li>Pro:
+<ul>
+<li>Honest target not only removes potential bias in leaf estimates but also considers variance reduction in splitting.</li>
+<li>enables statistical testing</li>
+</ul></li>
+<li>Con: smaller sample size</li>
+</ul>
+</div>
+</section></section>
+<section>
+<section id="honest-inference-for-treatment-effects" class="title-slide slide level1 center">
+<h1>Honest Inference for Treatment Effects</h1>
+<ul>
+<li>Population average outcome “in a leaf” and its estimator</li>
+</ul>
+<p><span class="math display">\begin{align*}
+            &amp;\mu(w,x;\Pi) \equiv \mathbb{E}[Y_i(w)|X_i \in \mathcal{l}(x;\Pi)] \notag \\
+            &amp;\hat{\mu}(w,x;\mathcal{S},\Pi) \equiv \frac{1}{\# (\{i \in \mathcal{S}_w:X_i\in\mathcal{l}(x;\Pi)\})} \sum_{i \in \mathcal{S}_w:X_i\in\mathcal{l}(x;\Pi)}Y_i^{obs}
+\end{align*}</span></p>
+<ul>
+<li>Average causal effect “in a leaf” and its estimator</li>
+</ul>
+<p><span class="math display">\begin{align*}
+        &amp;\tau(x;\Pi) \equiv \mathbb{E}[Y_i(1)-Y_i(0)|X_i \in \mathcal{l}(x;\Pi)] \notag \\
+        &amp;\hat{\tau}(x;\mathcal{S},\Pi) \equiv \hat{\mu}(1,x;\mathcal{S},\Pi)-\hat{\mu}(0,x;\mathcal{S},\Pi) \notag
+\end{align*}</span></p>
+</section>
+<section id="cart-for-heterogeneous-treatment-effects" class="slide level2">
+<h2>CART For Heterogeneous Treatment Effects?</h2>
+<ol type="1">
+<li>Model and Estimation
+<ul>
+<li>Model type: Tree structure with <span class="math inline">\mathcal{S}^{\color{blue}{tr}}</span> (Grow and prune)</li>
+<li>Estimate with <span class="math inline">\mathcal{S}^{\color{blue}{tr}}</span>. <span class="math display">
+      \hat{\tau}(x;\mathcal{S}^{\color{blue} \text{tr}},\Pi) = \hat{\mu}(1,x;\mathcal{S}^{\color{blue}{tr}},\Pi)-\hat{\mu}(0,x;\mathcal{S}^{\color{blue}{tr}},\Pi)
+</span></li>
+</ul></li>
+<li>Criterion Function (for fixed complexity parameter <span class="math inline">\lambda</span>)
+<ul>
+<li>In-sample Goodness-of-fit function: {NOT FEASIBLE} <span class="math display">
+      Q^{is}=-MSE=-\frac{1}{N}\sum_{i=1}^{N}(\tau_i-\hat{\tau}_i)^2
+</span></li>
+<li>Criterion: <span class="math inline">Q^{crit}=Q^{is}-\lambda\cdot\#|\Pi|</span></li>
+</ul></li>
+<li>Cross-validation approach with <span class="math inline">\mathcal{S}^{{\color{blue} \text{te}}}</span>
+<ul>
+<li>Approach: cv on grid of complexity parameters. Select complexity parameter <span class="math inline">\lambda</span> with the highest out-of-sample goodness-of-fit <span class="math inline">{Q}^{\text{os}}</span>.</li>
+<li><span class="math inline">{Q}^{\text{os}}=-MSE</span></li>
+</ul></li>
+</ol>
+</section>
+<section id="problems-with-using-cart-for-hte-and-its-replacement" class="slide level2">
+<h2>Problems with using CART for HTE and its replacement</h2>
+<ul>
+<li><p>GOAL: Estimate within-leaf treatment effect</p></li>
+<li><p>HOW? maximize <span class="math inline">-MSE_{\tau}</span></p></li>
+<li><p>{Problem 1}: <span class="math inline">\tau_i</span>’s are unobservable</p>
+<ul>
+<li>Under our framework, estimate <span class="math inline">-MSE_\tau</span> with <span class="math inline">-\hat{MSE}_\tau</span>(unbiased)</li>
+</ul></li>
+<li><p>{Problem 2}: NOT Honest (e.g.&nbsp;<span class="math inline">\overline{\tau_L}-\overline{\tau_R}</span> with condition <span class="math inline">\geq c</span> is biased)</p>
+<ul>
+<li>Split sample; one to build tree, the other to estimate effects.</li>
+</ul></li>
+<li><p>NEW criterion <span class="math display">\begin{align*}
+      -\mathbb{E}_{\mathcal{S}^{\color{blue}{te}}, \mathcal{S}^{\color{blue}{est}}}[\sum_{i\in \mathcal{S}^{\color{blue}{te}}}(\tau_i-\hat{\tau}(X_i;\mathcal{S}^{\color{blue}est}))^2]
+  \end{align*}</span></p></li>
+</ul>
+</section>
+<section id="new-criterion-for-honest-causal-tree" class="slide level2">
+<h2>New Criterion for Honest Causal Tree</h2>
+<p>Given <span class="math inline">\Pi</span>,</p>
+<p><span class="math display">\begin{align*}
+        \text{MSE}_{\tau}(\mathcal{S^{{\color{red}\text{te}}}},\mathcal{S^{{\color{red}\text{est}}}}) &amp;\equiv \frac{1}{\text{N}^{\color{red}\text{te}}}\sum_{i\in \mathcal{S^{{\color{red}\text{te}}}}}(\tau_i-\hat{\tau}(X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi))^2 \notag \\
+        &amp;= \frac{1}{\text{N}^{\color{red}\text{te}}}\sum_{i\in \mathcal{S^{{\color{red}\text{te}}}}}(\tau_i^2-2\tau_i\cdot \hat{\tau}(X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi)+\hat{\tau}^2 (X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi)) \\
+        EMSE &amp;=\mathbb{E}_{\mathcal{S}^{\color{red}{te}}, \mathcal{S}^{\color{red}{est}}}[\sum_{i\in \mathcal{S}^{\color{red}{te}}}(\tau_i-\hat{\tau}(X_i;\mathcal{S}^{\color{red}est}))^2] \\
+        &amp;= \mathbb{V}_{\mathcal{S}^{\text{est}}, X_i}[\hat{\tau}(X_i; \mathcal{S}^{\text{est}},\Pi)]-\mathbb{E}_{X_i}[\tau^2(X_i;\Pi)]+\cancel{\mathbb{E}[\tau_i^2]}
+\end{align*}</span></p>
+<ul>
+<li><p>Again, the last equality holds by the “honesty” that <span class="math inline">\mathcal{S}^{est}\perp \Pi</span></p></li>
+<li><p>Why <span class="math inline">\mathbb{V}[\hat{\tau}]</span> in <span class="math inline">EMSE</span>?</p>
+<p>We care not only about this sample but also about other possible samples, so <span class="math inline">\mathbb{V}[\hat{\tau}]</span> is taken into account.</p></li>
+</ul>
+</section>
+<section id="estimating-the-criterion" class="slide level2">
+<h2>Estimating the Criterion</h2>
+<ul>
+<li><p>In-sample goodness-of-fit measure $-_{}(,) $ <span class="math display">\begin{align*}
+       \equiv
+      \frac{1}{\text{N}^\text{tr}} \sum_{i\in\mathcal{S^\text{tr}}} \hat{\tau}^2(X_i;\mathcal{S}^{tr},\Pi)
+      -(\frac{2}{\text{N}^{\text{tr}}})\sum_{\ell \in \Pi}(\frac{S^2_{\mathcal{S}^\text{tr}_\text{treat}}(\ell)}{p}+\frac{S^2_{\mathcal{S}^\text{tr}_\text{control}}(\ell)}{1-p})
+\end{align*}</span> where <span class="math inline">p=N^\text{tr}_\text{treat}/N^\text{tr}</span></p></li>
+<li><p>Note that <span class="math inline">S^2</span>’s are the sample variances of {mean estimates}, {NOT} thetreatment effects.</p></li>
+<li><p>out-of-sample goodness-of-fit measure: <span class="math inline">\hat{EMSE}_\tau(\mathcal{S^{\text{tr, cv}}},\Pi)</span></p></li>
+</ul>
+</section>
+<section id="interpretation-of-the-criterion" class="slide level2">
+<h2>Interpretation of the Criterion</h2>
+<ul>
+<li>The first term {rewards} high heterogeneity in treatment effects <span class="math display">\begin{align*}
+      \frac{1}{\text{N}^\text{tr}} \sum_{i\in\mathcal{S^\text{tr}}} \hat{\tau}^2(X_i;\mathcal{S}^{tr},\Pi)
+  \end{align*}</span></li>
+<li>The second term {penalizes} a partition that creates variance in leaf estimates (e.g.&nbsp;small leaves) <span class="math display">\begin{align*}
+           -\frac{2}{\text{N}^{\text{tr}}}\sum_{\ell \in \Pi}(\frac{S^2_{\mathcal{S}^\text{tr}_\text{treat}}(\ell)}{p}+\frac{S^2_{\mathcal{S}^\text{tr}_\text{control}}(\ell)}{1-p})
+      \end{align*}</span></li>
+<li>Two terms are NOT proportional (c.f. Terms in <span class="math inline">\hat{EMSE}_\mu</span> are proportional)</li>
+</ul>
 
 </section></section>
     </div>
@@ -193,7 +428,6 @@
   <script src="slides_files/libs/revealjs/plugin/notes/notes.js"></script>
   <script src="slides_files/libs/revealjs/plugin/search/search.js"></script>
   <script src="slides_files/libs/revealjs/plugin/zoom/zoom.js"></script>
-  <script src="slides_files/libs/revealjs/plugin/math/math.js"></script>
   <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
 
   <script>
@@ -361,27 +595,9 @@
         // Factor of the display size that should remain empty around the content
         margin: 0.1,
 
-        math: {
-          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
-          config: 'TeX-AMS_HTML-full',
-          tex2jax: {
-            inlineMath: [['\\(','\\)']],
-            displayMath: [['\\[','\\]']],
-            balanceBraces: true,
-            processEscapes: false,
-            processRefs: true,
-            processEnvironments: true,
-            preview: 'TeX',
-            skipTags: ['script','noscript','style','textarea','pre','code'],
-            ignoreClass: 'tex2jax_ignore',
-            processClass: 'tex2jax_process'
-          },
-        },
-
         // reveal.js plugins
         plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
 
-          RevealMath,
           RevealNotes,
           RevealSearch,
           RevealZoom
