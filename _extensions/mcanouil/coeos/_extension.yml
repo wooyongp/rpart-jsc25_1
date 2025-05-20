@@ -16,3 +16,4 @@ contributes:
             <link rel="shortcut icon" href="https://raw.githubusercontent.com/mcanouil/hex-stickers/main/SVG/coeos.svg" />
       include-after-body:
         - file: coeos.html
+      html-math-method: katex

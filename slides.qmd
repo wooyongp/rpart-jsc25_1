@@ -1,8 +1,8 @@
 ---
 title: Recursive Partitioning <br> for Heterogeneous Causal Effects
 subtitle: Susan Athey and Guido Imbens(2016)
+author: Wooyong Park, Joonwoo Shin, Jeongwoo Yang, Minseo Seo
 format: coeos-revealjs
-html-math-method: katex
 ---
 
 
@@ -63,7 +63,7 @@ where
 $$\hat{\mu}_\mathcal{l}(x; S. \Pi) = \frac{1}{\#(i \in S: X_i \in \mathcal{l}(x;\Pi))}\sum_{i\in S: X_i \in \mathcal{l}(x;\Pi)} Y_i
 $$
 
-## Problems with CART
+## Limitations of CART
 
 - Potential bias in the leaf estimates
 - does not consider variance in tree splitting
@@ -175,8 +175,8 @@ All combined we obtain unbiased estimator for honest target:
 ### Pros and Cons of Honest
 - Pro: 
     * Honest target not only removes potential bias in leaf estimates but also considers variance reduction in splitting.
-    * enables statistical testing
-- Con: smaller sample size
+    * enables statistical testing(valid confidence intervals)
+- Con: smaller sample size, shallower tree, and less personalized predictions
 
 
 :::
@@ -184,6 +184,7 @@ All combined we obtain unbiased estimator for honest target:
 
 # Honest Inference for Treatment Effects
 
+## Honest Inference for Treatment Effects
 - Population average outcome "in a leaf" and its estimator
 
 \begin{align*}
@@ -202,20 +203,20 @@ All combined we obtain unbiased estimator for honest target:
 ## CART For Heterogeneous Treatment Effects?
 
 1. Model and Estimation
-    - Model type: Tree structure with  $\mathcal{S}^{\color{blue}{tr}}$ (Grow and prune)
-    - Estimate with $\mathcal{S}^{\color{blue}{tr}}$.
+    - Model type: Tree structure with  $\mathcal{S}^{\color{red}{tr}}$ (Grow and prune)
+    - Estimate with $\mathcal{S}^{\color{red}{tr}}$.
     $$
-            \hat{\tau}(x;\mathcal{S}^{\color{blue} \text{tr}},\Pi) = \hat{\mu}(1,x;\mathcal{S}^{\color{blue}{tr}},\Pi)-\hat{\mu}(0,x;\mathcal{S}^{\color{blue}{tr}},\Pi)
+            \hat{\tau}(x;\mathcal{S}^{\color{red} \text{tr}},\Pi) = \hat{\mu}(1,x;\mathcal{S}^{\color{red}{tr}},\Pi)-\hat{\mu}(0,x;\mathcal{S}^{\color{red}{tr}},\Pi)
     $$
 
 2.  Criterion Function (for fixed complexity parameter $\lambda$)
-    - In-sample Goodness-of-fit function: {\color{blue}NOT FEASIBLE}
+    - In-sample Goodness-of-fit function: <span style="color: red;">NOT FEASIBLE</span>
     $$
             Q^{is}=-MSE=-\frac{1}{N}\sum_{i=1}^{N}(\tau_i-\hat{\tau}_i)^2
     $$
     - Criterion: $Q^{crit}=Q^{is}-\lambda\cdot\#|\Pi|$
     
-3.  Cross-validation approach with $\mathcal{S}^{{\color{blue} \text{te}}}$
+3.  Cross-validation approach with $\mathcal{S}^{{\color{red} \text{te}}}$
     - Approach: cv on grid of complexity parameters. Select complexity parameter $\lambda$ with the highest out-of-sample goodness-of-fit ${Q}^{\text{os}}$.
     - ${Q}^{\text{os}}=-MSE$
 
@@ -226,15 +227,15 @@ All combined we obtain unbiased estimator for honest target:
 
 - HOW? maximize $-MSE_{\tau}$
 
-- {\color{blue}Problem 1}: $\tau_i$'s are unobservable
+- Problem 1: $\tau_i$'s are unobservable
     * Under our framework, estimate $-MSE_\tau$ with $-\hat{MSE}_\tau$(unbiased)
 
-- {\color{blue}Problem 2}: NOT Honest (e.g.  $\overline{\tau_L}-\overline{\tau_R}$  with condition $\geq c$ is biased)
+- Problem 2: NOT Honest (e.g.  $\overline{\tau_L}-\overline{\tau_R}$  with condition $\geq c$ is biased)
     * Split sample; one to build tree, the other to estimate effects.
 
 - NEW criterion
     \begin{align*}
-        -\mathbb{E}_{\mathcal{S}^{\color{blue}{te}}, \mathcal{S}^{\color{blue}{est}}}[\sum_{i\in \mathcal{S}^{\color{blue}{te}}}(\tau_i-\hat{\tau}(X_i;\mathcal{S}^{\color{blue}est}))^2]
+        -\mathbb{E}_{\mathcal{S}^{\color{red}{te}}, \mathcal{S}^{\color{red}{est}}}[\sum_{i\in \mathcal{S}^{\color{red}{te}}}(\tau_i-\hat{\tau}(X_i;\mathcal{S}^{\color{red}est}))^2]
     \end{align*}
 
 ## New Criterion for Honest Causal Tree
@@ -256,7 +257,7 @@ Given $\Pi$,
     
 ## Estimating the Criterion
 
-- In-sample goodness-of-fit measure $-\hat{EMSE}_{\tau}(\mathcal{S^\text{tr}},\Pi) $
+- In-sample goodness-of-fit measure $-\hat{EMSE}_{\tau}(\mathcal{S^\text{tr}},\Pi)$
     \begin{align*}
          \equiv 
         \frac{1}{\text{N}^\text{tr}} \sum_{i\in\mathcal{S^\text{tr}}} \hat{\tau}^2(X_i;\mathcal{S}^{tr},\Pi)
@@ -264,18 +265,292 @@ Given $\Pi$,
 \end{align*}
 where $p=N^\text{tr}_\text{treat}/N^\text{tr}$
 
-- Note that $S^2$'s are the sample variances of {\color{blue}mean estimates}, {\color{red}NOT} thetreatment effects.
+- Note that $S^2$'s are the sample variances of <span style="color: blue;">mean estimates</span>, <span style="color: red;">NOT</span> the treatment effects.
 - out-of-sample goodness-of-fit measure: $\hat{EMSE}_\tau(\mathcal{S^{\text{tr, cv}}},\Pi)$
 
 
 ## Interpretation of the Criterion
-- The first term {\color{blue}rewards} high heterogeneity in treatment effects
+- The first term <span style="color: blue;">rewards</span> high heterogeneity in treatment effects
     \begin{align*}
         \frac{1}{\text{N}^\text{tr}} \sum_{i\in\mathcal{S^\text{tr}}} \hat{\tau}^2(X_i;\mathcal{S}^{tr},\Pi)
     \end{align*}
-- The second term {\color{red}penalizes} a partition that creates variance in leaf estimates (e.g. small leaves)
+- The second term <span style="color: red;">penalizes</span> a partition that increases variance in leaf estimates (e.g. small leaves)
         \begin{align*}
              -\frac{2}{\text{N}^{\text{tr}}}\sum_{\ell \in \Pi}(\frac{S^2_{\mathcal{S}^\text{tr}_\text{treat}}(\ell)}{p}+\frac{S^2_{\mathcal{S}^\text{tr}_\text{control}}(\ell)}{1-p})
         \end{align*}
 - Two terms are NOT proportional
     (c.f. Terms in $\hat{EMSE}_\mu$ are proportional)
+
+### Pros and Cons of Honest {#sec-pro-con}
+- Pro: 
+    * Honest target not only removes potential bias in leaf estimates but also penalizes high variance
+    * enables statistical testing(valid confidence intervals)
+- Con: smaller sample size, shallower tree, and less personalized predictions
+
+<p align="right">
+[<ins>Details</ins>](/#/sec-honest-app)
+</p>
+
+
+# Alternative Estimators and Simulation Results
+
+## Alternative Methods for Constructing Trees
+
+### (1) Fit-based Trees (F)
+- Regressors: intercept(average) {\color{red} + dummy variable for treatment}
+-  goodness-of-fit 
+    $$
+    MSE_{\mu,W}(\mathcal{S}^{te},\mathcal{S}^{est},\Pi) \equiv
+    \sum_{i\in\mathcal{S}^{te}}
+    ((Y_i^{\text{obs}}-
+    \hat{\mu}_w({\color{red}W_i},X_i;\mathcal{S}^{est},\Pi))^2
+    -{Y_i^{\text{obs}}}^2)
+    $$
+
+- Pros: MSE is feasible (No $\tau_i$ terms)
+-  Cons: NO <span style="color: blue;">reward</span> for heterogeneity of treatment effects\\
+        (c.f. $\sum\hat{\tau}^2$ term in Causal Tree MSE)
+  
+## Alternative Methods for Constructing Trees
+
+### (2) Squared T-statistic Trees (TS)
+- Split Rule: Test $H_0$, the {\color{red}average treatment eﬀect} is the same in the two potential leaves, with $T^2$
+        \begin{align*}
+            T^2 \equiv N \cdot
+            \frac{({\color{red}\overline{\tau}_L-\overline{\tau}_R})^2}{S^2/N_L+S^2/N_R}
+        \end{align*}
+        where $S^2$ is the conditional sample variance given the split
+- Pros: (only) rewards for heterogeneity of treatment effects
+- Cons: no value on splits that improve the <span style="color: blue;">fit</span>(c.f. **Fit-based Trees**)
+    
+## Simulation Study: Set-up
+
+#### Goal: Compare the performance of proposed algorithms (Adaptive vs. Honest)
+
+::: {.panel-tabset}
+
+### Outcome
+
+* Evaluate Mean Squared Error (MSE) for each method
+* Evaluate 90% confidence interval coverage for each method
+
+| Notation | Sample Size     | Role                          |
+|----------|------------------|-------------------------------|
+| N_tr     | 500 or 1,000     | Tree Construction             |
+| N_est    | 500 (honest setting) | Treatment Effect Estimation |
+| N_te     | 8,000            | Test Sample (MSE eval.)       |
+
+
+
+### Model
+$$
+    Y_i(w) = \eta(X_i) + \frac{1}{2}\cdot (2w-1) \cdot \kappa (X_i) + \epsilon_i
+$$
+    
+$\text{where} \quad \epsilon_i \sim N(0,.01), X_i \sim N(0,1) \quad \text{with} \quad \epsilon_i\perp X_i \quad \text{and }X_i\perp X_j$
+     
+### Design
+
+We have three different setups:
+
+1. $K=2; \quad \eta(x) = \frac{1}{2}x_1 + x_2; \quad \kappa(x) = \frac{1}{2}x_1$
+2. $K=10; \quad \eta(x) = \frac{1}{2}(x_1+x_2) + \sum_{k=3}^6 x_k; \quad \kappa(x) = \frac{2}{1}\mathbb{I}\{x_k >0\}\cdot x_k$
+3. $K=20; \quad \eta(x) = \frac{1}{2}\sum_{k=1}^4 x_k + \sum_{k=5}^8 x_k; \quad \kappa(x) = \mathbb{I}\{x_k>0\} \cdot x_k$
+
+<br>
+
+* Design 1: a simple model with two covariates. HTE is linear with $x_1$
+* Design 2: six covariates and two that interacts with TE. HTE is non linear 
+* Design 3: eight covariates and four that interacts with TE. HTE is non linear 
+
+:::
+
+
+## Simulation Study: Results
+  
+### CT-H vs alternative estimators
+:::: {.columns}
+
+::: {.column width="40%"}
+![](figures/fig2.png)
+:::
+
+::: {.column width="60%"}
+- CT:
+    * Best overall performance across all designs
+
+<div style="margin-bottom: 0.5em;"></div>
+
+- F:
+    * Performs worst in all designs; splits based on outcome prediction
+
+<div style="margin-bottom: 0.5em;"></div>
+
+- F:
+    * Strong in Design 1
+    * Underperforms in Designs 2 and 3 due to limitations of t-statistics in capturing nonlinear heterogeneity
+
+:::
+
+::::
+
+
+## Simulation Study: Results{#sec-sim-study}
+  
+### Adaptive vs Honest : Coverage for 90% confidence intervals
+
+:::: {.columns}
+
+::: {.column width="40%"}
+![](figures/fig4.png)
+:::
+
+::: {.column width="60%"}
+- Honest estimation achieves nominal 90% coverage in all designs, while adaptive methods often fall below
+
+<br>
+
+- The fit estimator has the highest adaptive coverage rates; it doesn’t focus on treatment effects
+
+<br>
+
+- Honest estimation sacrifices some goodness of fit for valid confidence intervals
+
+
+:::
+
+::::
+
+<p align="right">
+[<ins>More results</ins>](/#/sec-sim-app)
+</p>
+
+## Observational Studies with Unconfoundedness
+
+- Causal Trees can be applied to observational studies under the assumption of unconfoundedness (treatment is independent of potential outcomes given covariates).
+
+<div style="margin-bottom: 0.5em;"></div>
+
+- Since mean differences are biased in observational data, propensity score weighting is used within leaves, with leaf-level normalization to improve efficiency.
+
+<div style="margin-bottom: 0.5em;"></div>
+
+- To enhance robustness, trimming units with extreme propensity scores (near 0 or 1) is recommended.
+
+<div style="margin-bottom: 0.5em;"></div>
+
+- These adjustments can be integrated into the honest estimation phase, and the resulting estimators remain asymptotically normal, allowing for valid inference.
+
+
+
+## Conclusion
+- By having a separate estimation set, tree-based ML approach can be used for estimating and testing heterogeneous treatment effects!
+
+- It imposes no restrictions on model complexity or the number of covariates, which helps setting data-driven hypotheses.
+
+
+- Different criterions can be used(fit, T-squared, etc.), but our baseline estimator(CT-H) performs the best in simulation.
+
+- Can be extended to observational studies!
+
+
+
+## Materials
+TBU
+
+# Appendix
+
+
+## Cost and Benefits of Honest {#sec-honest-app}
+- Cost
+    * Shallower tree ($\because$ smaller leaves $\rightarrow$ higher $\mathbb{V}$)
+    * Smaller # of samples $\rightarrow$ Less personalized predictions and lower MSE
+- Benefit
+    * EASY
+    * Holding tree from $\mathcal{S}^{\color{red}tr}$ fixed, can use standard methods to conduct inference (confidence interval) within each leaf of the tree on $\mathcal{S}^{\color{red}te}$
+    (Disregard of the dimension of covariates)
+    * No assumption on sparsity needed (c.f. nonparametric methods)
+- vs Dishonest with double the sample
+    * Honest does worse if true model is sparse (also the case where bias is less severe)
+    * Dishonest has similar or better MSE in many cases, but poor coverage of confidence intervals
+
+<p align="right">
+[<ins>Return</ins>](/#/sec-pro-con)
+</p>
+
+## FAQ
+- Individuals on the edges of a leaf(outliers)
+     * Use different method (e.g. Radom Forest) to provide a more personalized estimation. Causal Tree is to answer questions on the relation between covariates and how they interplay with treatment effects.
+
+- Is smaller number of samples bad?
+    * Again, we've moved the goal post here. We are not trying to give the best prediction of effect on individuals. Rather, recursive partitioning assists figuring a general relation between covariates and treatment effects.
+
+- Why 50:50 in sample splitting?
+    <!-- *Athey initially considered adding a parameter of sample ratio. Imbens thought more than one parameter would be too much to optimize. -->
+    * Sample ratio could be taken differently in different problems and data available. 
+
+
+## Simulation Study: Results{#sec-sim-app}
+  
+### Number of Leaves(Tree Depth)
+:::: {.columns}
+
+::: {.column width="40%"}
+![](figures/fig1.png)
+:::
+
+::: {.column width="60%"}
+- CT:
+    * Splitting criteria: Maximizes – MSE
+
+<div style="margin-bottom: 0.5em;"></div>
+
+- F:
+    * Splitting criteria: Maximizes outcome prediction
+    * Build deeper trees than that of CT
+    * Less prone to overfitting on treatment effects 
+
+<div style="margin-bottom: 0.5em;"></div>
+
+- TS:
+    * Splitting criteria: Maximizes squared t-statistic
+    * Tree depth similar to that of CT
+    * Adaptive versions still prone to overfitting
+:::
+
+::::
+
+## Simulation Study: Results
+  
+### Adaptive vs Honest : Ratio of infeasible MSE
+:::: {.columns}
+
+::: {.column width="40%"}
+![](figures/fig3.png)
+:::
+
+::: {.column width="60%"}
+- Honest estimation shows higher MSE in most cases
+     $\rightarrow$ Uses only half the data, leading to lower precision
+
+
+<div style="margin-bottom: 0.5em;"></div>
+
+- Fit estimator performs poorly in Design 1
+    $\rightarrow$ With smaller sample size, it tends to ignore treatment heterogeneity
+
+
+
+<div style="margin-bottom: 0.5em;"></div>
+
+- As design complexity increases, the MSE ratio decreases.
+$\rightarrow$ Adaptive estimators overfit more in complex settings.
+
+:::
+
+::::
+
+
+<p align="right">
+[<ins>Return</ins>](/#/sec-sim-study)
+</p>
