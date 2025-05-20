@@ -14,8 +14,9 @@ Don't stress. We are going to start from scratch.
 
 Research Question:
 
-Does a simle in your online profile help your online micro-borrowing?(Athey et al, 2022 <small>NBER WP</small>)
+Does a smile in your online profile help your online micro-borrowing?(Athey et al, 2022 <small>NBER WP</small>)
 
+::: {.fragment}
 * $W_i \in \{0,1\}$ : Your treatment status
 
 <div style="margin-bottom: 0.8em;"></div>
@@ -31,7 +32,7 @@ Your **treatment effect** is the difference between thw two:
 $$
 \tau_i = Y_i(1) - Y_i(0)
 $$
-
+:::
 
 ## Missing Counterfactuals and ATE
 
