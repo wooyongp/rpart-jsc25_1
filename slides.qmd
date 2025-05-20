@@ -128,7 +128,7 @@ $\rightarrow$ can maybe help us set up models and hypotheses!
 Trees recursively partition the covariate space so that going down to each node, the
 variance of the $y$ value in the subset is low and $y$’s are better predicted.
 
-![Figure from Beaulac and Rosenthal(2019)](figures/decision_tree_illustration.png){width=55%}
+![Figure from Beaulac and Rosenthal(2019)](figures/decision_tree_illustration.png){width=45%}
 
 We do this by choosing $X_i$ and cutoff $k$ and minimize
 
@@ -237,6 +237,10 @@ If we condition on $\bar{Y}_L -\bar{Y}_R >c$, we expect bias.
 
 
 ### Training 1
+
+:::: { .columns}
+
+::: { .column width="70%"}
 ```{r}
 #| echo: true
 #| output: true
@@ -265,9 +269,20 @@ ggplot(train1, aes(x = Start, y = Age)) +
   theme_minimal()
 ```
 
+:::
 
+::: { .column width="30%"}
+
+:::
+
+::::
 
 ### Training 2
+
+:::: { .columns}
+
+::: { .column width="70%"}
+
 ```{r}
 #| echo: true
 #| output: true
@@ -287,7 +302,19 @@ ggplot(train2, aes(x = Start, y = Age)) +
   theme_minimal()
 ```
 
+:::
+
+:::{ .column width="30%"}
+
+:::
+
+::::
+
 ### Estimation Set
+
+:::: { .columns}
+
+::: { .column width="70%"}
 
 ```{r}
 #| echo: true
@@ -306,6 +333,14 @@ ggplot(kyphosis, aes(x = Start, y = Age)) +
     ) +
   theme_minimal()
 ```
+
+:::
+
+:::{ .column width="30%"}
+
+:::
+
+::::
 
 ::::
 
@@ -336,7 +371,7 @@ Then our goal is to find $\pi$ that maximizes the **Honest Criterion**:
 ## Honest Target: Estimation
 
 $$
-     -\text{EMSE}_\mu=\mathbb{E}_{X_i}\left[\mu^2(X_i;\Pi)\right] - \mathbb{E}_{S^{est},X_i}\biggl[\mathbb{V}\bigl(\hat{\mu^2}(X_i;S^{est},\Pi)\bigr)\biggr]
+     -\text{EMSE}_\mu=\mathbb{E}_{X_i}\left[\mu^2(X_i;\Pi)\right] - \mathbb{E}_{S^{est},X_i}\biggl[\mathbb{V}\bigl(\hat{\mu}(X_i;S^{est},\Pi)\bigr)\biggr]
 $$
 
 ::: {.panel-tabset}
@@ -352,10 +387,10 @@ $$
 ### second term
 
 $$
-            \hat{\mathbb{V}}(\hat{\mu}(x;S^{est},\Pi)) = \frac{S^2_{S^{tr}}(l(x;\Pi))}{N^{est}(l(x;\Pi))}
+            \hat{\mathbb{V}}(\hat{\mu}(x;S^{est},\Pi)) = \frac{S^2_{S^{\color{red} tr}}(l(x;\Pi))}{N^{est}(l(x;\Pi))}
 $$
 
-Assuming leaf shares between $S^{tr}$ and $S^{est}$, we can obtain
+Assuming leaf shares between $S^{tr}$ and $S^{est}$ are approximately the same,
 
 $$
             \hat{\mathbb{E}}\left[\mathbb{V}(\hat{\mu}(X_i;S^{est},\Pi))|i \in S^{te}\right] = \frac{1}{N^{est}}\sum\limits_{\mathcal{l} \in \Pi}S^2_{S^{tr}}(\mathcal{l})
@@ -366,10 +401,10 @@ $$
 ## Honest Target: Estimation
 
 $$
-     -\text{EMSE}_\mu=\mathbb{E}_{X_i}\left[\mu^2(X_i;\Pi)\right] - \mathbb{E}_{S^{est},X_i}\biggl[\mathbb{V}\bigl(\hat{\mu^2}(X_i;S^{est},\Pi)\bigr)\biggr]
+     -\text{EMSE}_\mu=\mathbb{E}_{X_i}\left[\mu^2(X_i;\Pi)\right] - \mathbb{E}_{S^{est},X_i}\biggl[\mathbb{V}\bigl(\hat{\mu}(X_i;S^{est},\Pi)\bigr)\biggr]
 $$
 
-The two terms combined, we obtain unbiased estimator for honest target:
+The two terms combined, we obtain an unbiased estimator for honest target:
 \begin{align*}
         \begin{aligned}
         -\widehat{\text{EMSE}_\mu}(S^{tr},N^{est},\Pi) =\qquad \qquad \qquad \qquad \qquad \qquad \qquad \qquad 
@@ -501,7 +536,7 @@ Given $\Pi$,
     \begin{align*}
          \equiv 
         \frac{1}{\text{N}^\text{tr}} \sum_{i\in\mathcal{S^\text{tr}}} \hat{\tau}^2(X_i;\mathcal{S}^{tr},\Pi)
-        -(\frac{2}{\text{N}^{\text{tr}}})\sum_{\ell \in \Pi}(\frac{S^2_{\mathcal{S}^\text{tr}_\text{treat}}(\ell)}{p}+\frac{S^2_{\mathcal{S}^\text{tr}_\text{control}}(\ell)}{1-p})
+        -\biggl(\frac{2}{\text{N}^{\text{tr}}}\biggr)\sum_{\ell \in \Pi}\biggl(\frac{S^2_{\mathcal{S}^\text{tr}_\text{treat}}(\ell)}{p}+\frac{S^2_{\mathcal{S}^\text{tr}_\text{control}}(\ell)}{1-p}\biggr)
 \end{align*}
 where $p=N^\text{tr}_\text{treat}/N^\text{tr}$
 
@@ -538,7 +573,7 @@ where $p=N^\text{tr}_\text{treat}/N^\text{tr}$
 
 ### (1) Fit-based Trees (F)
 
-- Regressors: intercept(average) {\color{red} + dummy variable for treatment}
+- Regressors: intercept(average) <span style="color: red;">dummy variable for treatment</span>
 
 -  goodness-of-fit 
 
@@ -553,14 +588,15 @@ $$
 
 
 - Pros: MSE is feasible (No $\tau_i$ terms)
--  Cons: NO <span style="color: blue;">reward</span> for heterogeneity of treatment effects\\
-        (c.f. $\sum\hat{\tau}^2$ term in Causal Tree MSE)
+-  Cons: NO <span style="color: blue;">reward</span> for heterogeneity of treatment effects
+
+    (c.f. $\sum\hat{\tau}^2$ term in Causal Tree MSE)
   
 ## Alternative Methods for Constructing Trees
 
 ### (2) Squared T-statistic Trees (TS)
 
-- Split Rule: Test $H_0$, the {\color{red}average treatment eﬀect} is the same in the two potential leaves, with $T^2$
+- Split Rule: Test $H_0$, the <span style="color: red;">CATE</span> is the same in the two potential leaves, with $T^2$
 
 \begin{align*}
     T^2 \equiv N \cdot
@@ -623,17 +659,17 @@ We have three different setups:
 :::
 
 ::: {.column width="60%"}
-- CT:
+- CT-H:
     * Best overall performance across all designs
 
 <div style="margin-bottom: 0.5em;"></div>
 
-- F:
+- F-H:
     * Performs worst in all designs; splits based on outcome prediction
 
 <div style="margin-bottom: 0.5em;"></div>
 
-- F:
+- TS-H:
     * Strong in Design 1
     * Underperforms in Designs 2 and 3 due to limitations of t-statistics in capturing nonlinear heterogeneity
 
@@ -754,19 +790,19 @@ TBU
 :::
 
 ::: {.column width="60%"}
-- CT:
+- CT-H:
     * Splitting criteria: Maximizes – MSE
 
 <div style="margin-bottom: 0.5em;"></div>
 
-- F:
+- F-H:
     * Splitting criteria: Maximizes outcome prediction
     * Build deeper trees than that of CT
     * Less prone to overfitting on treatment effects 
 
 <div style="margin-bottom: 0.5em;"></div>
 
-- TS:
+- TS-H:
     * Splitting criteria: Maximizes squared t-statistic
     * Tree depth similar to that of CT
     * Adaptive versions still prone to overfitting

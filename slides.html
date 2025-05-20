@@ -316,7 +316,7 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <p>Trees recursively partition the covariate space so that going down to each node, the variance of the <span class="math inline">y</span> value in the subset is low and <span class="math inline">y</span>’s are better predicted.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="figures/decision_tree_illustration.png" style="width:55.0%"></p>
+<p><img data-src="figures/decision_tree_illustration.png" style="width:45.0%"></p>
 <figcaption>Figure from Beaulac and Rosenthal(2019)</figcaption>
 </figure>
 </div>
@@ -423,6 +423,8 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <ul id="tabset-2" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-2-1">Training 1</a></li><li><a href="#tabset-2-2">Training 2</a></li><li><a href="#tabset-2-3">Estimation Set</a></li></ul>
 <div class="tab-content">
 <div id="tabset-2-1">
+<div class="columns">
+<div class="column" style="width:70%;">
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -456,8 +458,13 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 </div>
 </div>
 </div>
+</div><div class="column" style="width:30%;">
+
+</div></div>
 </div>
 <div id="tabset-2-2">
+<div class="columns">
+<div class="column" style="width:70%;">
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -480,8 +487,13 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 </div>
 </div>
 </div>
+</div><div class="column" style="width:30%;">
+
+</div></div>
 </div>
 <div id="tabset-2-3">
+<div class="columns">
+<div class="column" style="width:70%;">
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -504,6 +516,9 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 </div>
 </div>
 </div>
+</div><div class="column" style="width:30%;">
+
+</div></div>
 </div>
 </div>
 </div>
@@ -530,7 +545,7 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <section id="honest-target-estimation" class="slide level2">
 <h2>Honest Target: Estimation</h2>
 <p><span class="math display">
-     -\text{EMSE}_\mu=\mathbb{E}_{X_i}\left[\mu^2(X_i;\Pi)\right] - \mathbb{E}_{S^{est},X_i}\biggl[\mathbb{V}\bigl(\hat{\mu^2}(X_i;S^{est},\Pi)\bigr)\biggr]
+     -\text{EMSE}_\mu=\mathbb{E}_{X_i}\left[\mu^2(X_i;\Pi)\right] - \mathbb{E}_{S^{est},X_i}\biggl[\mathbb{V}\bigl(\hat{\mu}(X_i;S^{est},\Pi)\bigr)\biggr]
 </span></p>
 <div class="panel-tabset">
 <ul id="tabset-3" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-3-1">first term</a></li><li><a href="#tabset-3-2">second term</a></li></ul>
@@ -542,9 +557,9 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 </div>
 <div id="tabset-3-2">
 <p><span class="math display">
-            \hat{\mathbb{V}}(\hat{\mu}(x;S^{est},\Pi)) = \frac{S^2_{S^{tr}}(l(x;\Pi))}{N^{est}(l(x;\Pi))}
+            \hat{\mathbb{V}}(\hat{\mu}(x;S^{est},\Pi)) = \frac{S^2_{S^{\color{red} tr}}(l(x;\Pi))}{N^{est}(l(x;\Pi))}
 </span></p>
-<p>Assuming leaf shares between <span class="math inline">S^{tr}</span> and <span class="math inline">S^{est}</span>, we can obtain</p>
+<p>Assuming leaf shares between <span class="math inline">S^{tr}</span> and <span class="math inline">S^{est}</span> are approximately the same,</p>
 <p><span class="math display">
             \hat{\mathbb{E}}\left[\mathbb{V}(\hat{\mu}(X_i;S^{est},\Pi))|i \in S^{te}\right] = \frac{1}{N^{est}}\sum\limits_{\mathcal{l} \in \Pi}S^2_{S^{tr}}(\mathcal{l})
 </span></p>
@@ -555,9 +570,9 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <section id="honest-target-estimation-1" class="slide level2">
 <h2>Honest Target: Estimation</h2>
 <p><span class="math display">
-     -\text{EMSE}_\mu=\mathbb{E}_{X_i}\left[\mu^2(X_i;\Pi)\right] - \mathbb{E}_{S^{est},X_i}\biggl[\mathbb{V}\bigl(\hat{\mu^2}(X_i;S^{est},\Pi)\bigr)\biggr]
+     -\text{EMSE}_\mu=\mathbb{E}_{X_i}\left[\mu^2(X_i;\Pi)\right] - \mathbb{E}_{S^{est},X_i}\biggl[\mathbb{V}\bigl(\hat{\mu}(X_i;S^{est},\Pi)\bigr)\biggr]
 </span></p>
-<p>The two terms combined, we obtain unbiased estimator for honest target: <span class="math display">\begin{align*}
+<p>The two terms combined, we obtain an unbiased estimator for honest target: <span class="math display">\begin{align*}
         \begin{aligned}
         -\widehat{\text{EMSE}_\mu}(S^{tr},N^{est},\Pi) =\qquad \qquad \qquad \qquad \qquad \qquad \qquad \qquad
         \\    \frac{1}{N^{tr}} \sum\limits_{i \in S^{tr}}\hat{\mu^2}(X_i;S^{tr},\Pi)-\left(\frac{1}{N^{tr}}+\frac{1}{N^{est}}\right)\cdot\sum\limits_{l \in \Pi}S^2_{S^{tr}}(l(x;\Pi))
@@ -692,7 +707,7 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <li><p>In-sample goodness-of-fit measure <span class="math inline">-\hat{EMSE}_{\tau}(\mathcal{S^\text{tr}},\Pi)</span> <span class="math display">\begin{align*}
        \equiv
       \frac{1}{\text{N}^\text{tr}} \sum_{i\in\mathcal{S^\text{tr}}} \hat{\tau}^2(X_i;\mathcal{S}^{tr},\Pi)
-      -(\frac{2}{\text{N}^{\text{tr}}})\sum_{\ell \in \Pi}(\frac{S^2_{\mathcal{S}^\text{tr}_\text{treat}}(\ell)}{p}+\frac{S^2_{\mathcal{S}^\text{tr}_\text{control}}(\ell)}{1-p})
+      -\biggl(\frac{2}{\text{N}^{\text{tr}}}\biggr)\sum_{\ell \in \Pi}\biggl(\frac{S^2_{\mathcal{S}^\text{tr}_\text{treat}}(\ell)}{p}+\frac{S^2_{\mathcal{S}^\text{tr}_\text{control}}(\ell)}{1-p}\biggr)
 \end{align*}</span> where <span class="math inline">p=N^\text{tr}_\text{treat}/N^\text{tr}</span></p></li>
 <li><p>Note that <span class="math inline">S^2</span>’s are the sample variances of <span style="color: blue;">mean estimates</span>, <span style="color: red;">NOT</span> the treatment effects.</p></li>
 <li><p>out-of-sample goodness-of-fit measure: <span class="math inline">\hat{EMSE}_\tau(\mathcal{S^{\text{tr, cv}}},\Pi)</span></p></li>
@@ -733,7 +748,7 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <h2>Alternative Methods for Constructing Trees</h2>
 <h3 id="fit-based-trees-f">(1) Fit-based Trees (F)</h3>
 <ul>
-<li><p>Regressors: intercept(average) { + dummy variable for treatment}</p></li>
+<li><p>Regressors: intercept(average) <span style="color: red;">dummy variable for treatment</span></p></li>
 <li><p>goodness-of-fit</p></li>
 </ul>
 <p><span class="math display">
@@ -744,15 +759,16 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
     -{Y_i^{\text{obs}}}^2)
 </span></p>
 <ul>
-<li>Pros: MSE is feasible (No <span class="math inline">\tau_i</span> terms)</li>
-<li>Cons: NO <span style="color: blue;">reward</span> for heterogeneity of treatment effects\ (c.f. <span class="math inline">\sum\hat{\tau}^2</span> term in Causal Tree MSE)</li>
+<li><p>Pros: MSE is feasible (No <span class="math inline">\tau_i</span> terms)</p></li>
+<li><p>Cons: NO <span style="color: blue;">reward</span> for heterogeneity of treatment effects</p>
+<p>(c.f. <span class="math inline">\sum\hat{\tau}^2</span> term in Causal Tree MSE)</p></li>
 </ul>
 </section>
 <section id="alternative-methods-for-constructing-trees-1" class="slide level2">
 <h2>Alternative Methods for Constructing Trees</h2>
 <h3 id="squared-t-statistic-trees-ts">(2) Squared T-statistic Trees (TS)</h3>
 <ul>
-<li>Split Rule: Test <span class="math inline">H_0</span>, the {average treatment eﬀect} is the same in the two potential leaves, with <span class="math inline">T^2</span></li>
+<li>Split Rule: Test <span class="math inline">H_0</span>, the <span style="color: red;">CATE</span> is the same in the two potential leaves, with <span class="math inline">T^2</span></li>
 </ul>
 <p><span class="math display">\begin{align*}
     T^2 \equiv N \cdot
@@ -831,7 +847,7 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <p><img data-src="figures/fig2.png"></p>
 </div><div class="column" style="width:60%;">
 <ul>
-<li>CT:
+<li>CT-H:
 <ul>
 <li>Best overall performance across all designs</li>
 </ul></li>
@@ -840,7 +856,7 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 
 </div>
 <ul>
-<li>F:
+<li>F-H:
 <ul>
 <li>Performs worst in all designs; splits based on outcome prediction</li>
 </ul></li>
@@ -849,7 +865,7 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 
 </div>
 <ul>
-<li>F:
+<li>TS-H:
 <ul>
 <li>Strong in Design 1</li>
 <li>Underperforms in Designs 2 and 3 due to limitations of t-statistics in capturing nonlinear heterogeneity</li>
@@ -989,7 +1005,7 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <p><img data-src="figures/fig1.png"></p>
 </div><div class="column" style="width:60%;">
 <ul>
-<li>CT:
+<li>CT-H:
 <ul>
 <li>Splitting criteria: Maximizes – MSE</li>
 </ul></li>
@@ -998,7 +1014,7 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 
 </div>
 <ul>
-<li>F:
+<li>F-H:
 <ul>
 <li>Splitting criteria: Maximizes outcome prediction</li>
 <li>Build deeper trees than that of CT</li>
@@ -1009,7 +1025,7 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 
 </div>
 <ul>
-<li>TS:
+<li>TS-H:
 <ul>
 <li>Splitting criteria: Maximizes squared t-statistic</li>
 <li>Tree depth similar to that of CT</li>
