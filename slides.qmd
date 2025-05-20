@@ -12,35 +12,181 @@ Don't stress. We are going to start from scratch.
 
 ## Causal Inference with binary treatment
 
-Research Question: How does Covid-19 reduce 
+Research Question:
+
+Does a simle in your online profile help your online micro-borrowing?(Athey et al, 2022 <small>NBER WP</small>)
+
+* $W_i \in \{0,1\}$ : Your treatment status
+
+<div style="margin-bottom: 0.8em;"></div>
+
+Under SUTVA(*Stable Unit Treatment Values Assumption*), 
+
+* $Y_i(1)$ : individual $i$'s potential outcome if he/she smiled
+* $Y_i(0)$ : individual $i$'s potential outcome if he/she did not
+
+<div style="margin-bottom: 0.8em;"></div>
+
+Your **treatment effect** is the difference between thw two:
+$$
+\tau_i = Y_i(1) - Y_i(0)
+$$
+
+
+## Missing Counterfactuals and ATE
+
+#### What we see:
+$$
+Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
+$$
+
+Since we cannot observe both situations,
+we usually rely on ATE:
+
+$$
+\tau = \mathbb{E}\bigl[Y_i(1)-Y_i(0)\bigr]
+$$
 
 
 
-## Counterfactuals and the treatment effect
+If
 
-## Estimation Strategies
 
-1. Unconditional Unconfoundedness(e.g. RCT)
-2. Unconfoundedness
-3. Existence of an IV
+&nbsp; &nbsp; &nbsp; &nbsp; 1. the treatment is randomized
+
+&nbsp; &nbsp; &nbsp; &nbsp; 2. the treatment is uncorrelated with unobserved characteristics
+
+&nbsp; &nbsp; &nbsp; &nbsp; 3. we have an IV
+
+we can unbiasedly estimate the ATE.
+
+
 
 ## Heterogeneous Treatment Effects
 
+### Limitations of ATE
 
-## Machine Learning
-ML started with a simple problem:
+Sometimes, the ATE is insufficient. 
 
-The unbiased predictor is not usually the minimum-error predictor.
-But most models are based on unbiasedness!
+Unfortunately, some people's smiles might not be as alluring as others'. $\rightarrow$ HTE
 
-- Penalization
-- Cross-Validation
+<br>
 
-ML performs great in selecting adequate models.
-$\rightarrow$ can maybe help us set up hypothesis!
+:::{.fragment }
+
+#### Conditional ATEs
+
+<div style="margin-bottom: 0.5em;"></div>
+
+CATE tries to explain them within the data:
 
 
-## Tree-based models: adaptive vs honest
+$$
+\tau(X_i) = \mathbb{E}\bigl[Y_i(1) - Y_i(0)|X_i\bigr]
+$$
+
+::: {.fragment .custom .fadein-gray}
+
+Athey and Imbens(2016): Tree-based models, which is an ML technique, can hint on how to choose $X_i$
+
+:::
+
+
+:::
+
+
+
+## Key concepts in ML
+
+In terms of prediction, OLS($\mathrm{y}=X'\beta +\varepsilon$) is not good enough.
+
+1. Non-linear relations
+    * e.g., $y=\beta_0 +\beta_1 x\cdot\mathbb{I(x \in (a,b))} +\varepsilon$
+
+<div style="margin-bottom: 0.5em;"></div>
+
+2. Bias-Variance tradeoff in Prediction
+    * Let $y=f(x) +\varepsilon$ be the true DGP and $\hat{f}$ be our fitted model.
+    * Then, for a new data point $x$,
+    $$
+    \mathbb{E}[f(x)+\varepsilon-\hat{f}(x)] = \mathbb{E}[f-\hat{f}]^2 + \mathbb{V}(\hat{f}) + \mathbb{V}(\varepsilon)
+    $$
+    
+    * The unbiased predictor is not usually the minimum-error predictor, but most models are based on unbiasedness!
+
+
+"Learning" means that the data selects the right parameters/hyperparameters, not the researcher.
+
+$\rightarrow$ can maybe help us set up models and hypotheses!
+
+
+## Tree-based models
+
+:::: {.panel-tabset}
+
+### Trees
+Trees recursively partition the covariate space so that going down to each node, the
+variance of the $y$ value in the subset is low and $y$’s are better predicted.
+
+![Figure from Beaulac and Rosenthal(2019)](figures/decision_tree_illustration.png){width=60%}
+
+We do this by choosing $X_i$ and cutoff $k$ and minimize
+
+$$
+\sum_{i \in L}(y_i-\overline{y}_L)^2 +\sum_{i \in R}(y_i-\overline{y}_R)^2
+$$
+
+
+### Code
+:::: {.columns}
+
+::: {.column width="60%"}
+```{r}
+#| echo: true
+#| output: true
+#| message: false
+
+# See the full code at Grant Mcdermott's repository
+library(rpart) 
+library(parsnip)
+library(tidyverse)
+library(parttree)
+set.seed(123) ## For consistent jitter
+
+fit = rpart(Kyphosis ~ Start + Age, data = kyphosis)
+
+ggplot(kyphosis, aes(x = Start, y = Age)) +
+  geom_parttree(data = fit, alpha = 0.1, aes(fill = Kyphosis)) + # <-- key layer
+  geom_point(aes(col = Kyphosis)) +
+  labs(
+    x = "No. of topmost vertebra operated on", y = "Patient age (months)",
+    caption = "Note: Points denote observations. Shading denotes model predictions."
+    ) +
+  theme_minimal()
+```
+
+:::
+
+::: {.column width="40%"}
+* Parameters: cutoffs, variables
+* Hyperparameters: tree depth, min. obs. per leaf
+
+::: {.fragment}
+* **Caution:** 
+
+    Sample mean within a leaf is not unbiased, because model building and estimation is done jointly.
+    
+    $\rightarrow$ **Honest Algorithm**
+:::
+
+:::
+
+::::
+
+### Forests
+![Figure Source: Datacamp](figures/random_forest.png)
+
+::::
 
 
 # Honest Inference for Outcome Averages
@@ -68,14 +214,7 @@ $$
 - Potential bias in the leaf estimates
 - does not consider variance in tree splitting
 
-### Example (TBU)
 
-::: {.panel-tabset}
-
-### Figure
-.
-
-### Equation
  
  Let $\mathbb{X} = \{L,R\}$
 
@@ -89,7 +228,90 @@ Recursive partitioning simply does the following:
 \end{align*}
 
 If we condition on $\bar{Y}_L -\bar{Y}_R >c$, we expect bias.
-:::
+
+## Limitations of CART
+### Example
+
+
+::::{.panel-tabset}
+
+
+### Training 1
+```{r}
+#| echo: true
+#| output: true
+#| message: false
+
+# See the full code at Grant Mcdermott's repository
+library(rpart) 
+library(parsnip)
+library(tidyverse)
+library(parttree)
+
+train1 <- kyphosis %>% head(50)
+estimation <- kyphosis %>% tail(31)
+set.seed(456) ## For consistent jitter
+train2 <- kyphosis %>% sample_n(50)
+
+fit = rpart(Kyphosis ~ Start + Age, data = train1)
+
+ggplot(train1, aes(x = Start, y = Age)) +
+  geom_parttree(data = fit, alpha = 0.1, aes(fill = Kyphosis)) + # <-- key layer
+  geom_point(aes(col = Kyphosis)) +
+  labs(
+    x = "No. of topmost vertebra operated on", y = "Patient age (months)",
+    caption = "Note: Points denote observations. Shading denotes model predictions."
+    ) +
+  theme_minimal()
+```
+
+
+
+### Training 2
+```{r}
+#| echo: true
+#| output: true
+#| message: false
+
+
+
+fit = rpart(Kyphosis ~ Start + Age, data = train2)
+
+ggplot(train2, aes(x = Start, y = Age)) +
+  geom_parttree(data = fit, alpha = 0.1, aes(fill = Kyphosis)) + # <-- key layer
+  geom_point(aes(col = Kyphosis)) +
+  labs(
+    x = "No. of topmost vertebra operated on", y = "Patient age (months)",
+    caption = "Note: Points denote observations. Shading denotes model predictions."
+    ) +
+  theme_minimal()
+```
+
+### Estimation Set
+
+```{r}
+#| echo: true
+#| output: true
+#| message: false
+
+
+fit = rpart(Kyphosis ~ Start + Age, data = kyphosis)
+
+ggplot(kyphosis, aes(x = Start, y = Age)) +
+#   geom_parttree(data = fit, alpha = 0.1, aes(fill = Kyphosis)) + # <-- key layer
+  geom_jitter(aes(col = Kyphosis)) +
+  labs(
+    x = "No. of topmost vertebra operated on", y = "Patient age (months)",
+    caption = "Note: Points denote observations. Shading denotes model predictions."
+    ) +
+  theme_minimal()
+```
+
+::::
+
+
+
+
 
 ## The Honest Criterion
 
@@ -105,7 +327,7 @@ Then our goal is to find $\pi$ that maximizes the **Honest Criterion**:
 
 
 ## The Honest Target
-- Given $\Pi$, we can expand $EMSE_\mu(\Pi) :
+- Given $\Pi$, we can expand $EMSE_\mu(\Pi)$ :
     \begin{equation*}
             -\text{EMSE}_\mu=\mathbb{E}_{X_i}\left[\mu^2(X_i;\Pi)\right] - \mathbb{E}_{S^{est},X_i}\biggl[\mathbb{V}\bigl(\hat{\mu^2}(X_i;S^{est},\Pi)\bigr)\biggr]
     \end{equation*}

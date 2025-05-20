@@ -142,3 +142,12 @@ code.sourceCode>span {
 #title-slide .title {
   font-size: 2.5em;
 }
+
+.reveal .slides section .fragment.fadein-gray {
+  color: rgba(128, 128, 128, 0.5); /* gray + 50% opacity */
+  transition: color 0.5s ease;
+}
+
+.reveal .slides section .fragment.fadein-gray.visible {
+  color: rgba(0, 0, 0, 1); /* full black, fully visible */
+}

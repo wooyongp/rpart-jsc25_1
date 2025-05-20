@@ -17,3 +17,4 @@ contributes:
       include-after-body:
         - file: coeos.html
       html-math-method: katex
+      code-fold: true
