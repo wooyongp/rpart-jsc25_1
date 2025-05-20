@@ -28,7 +28,7 @@ Under SUTVA(*Stable Unit Treatment Values Assumption*),
 
 <div style="margin-bottom: 0.8em;"></div>
 
-Your **treatment effect** is the difference between thw two:
+Your **treatment effect** is the difference between the two:
 $$
 \tau_i = Y_i(1) - Y_i(0)
 $$
@@ -88,7 +88,7 @@ $$
 
 ::: {.fragment .custom .fadein-gray}
 
-Athey and Imbens(2016): Tree-based models, which is an ML technique, can hint on how to choose $X_i$
+Athey and Imbens(2016): Tree-based model, a ML algorithm, can hint on how to choose $X_i$
 
 :::
 
@@ -104,13 +104,12 @@ In terms of prediction, OLS($\mathrm{y}=X'\beta +\varepsilon$) is not good enoug
 1. Non-linear relations
     * e.g., $y=\beta_0 +\beta_1 x\cdot\mathbb{I(x \in (a,b))} +\varepsilon$
 
-<div style="margin-bottom: 0.5em;"></div>
 
 2. Bias-Variance tradeoff in Prediction
     * Let $y=f(x) +\varepsilon$ be the true DGP and $\hat{f}$ be our fitted model.
     * Then, for a new data point $x$,
     $$
-    \mathbb{E}[f(x)+\varepsilon-\hat{f}(x)] = \mathbb{E}[f-\hat{f}]^2 + \mathbb{V}(\hat{f}) + \mathbb{V}(\varepsilon)
+    \mathbb{E}\bigl[\bigl(f(x)+\varepsilon-\hat{f}(x)\bigr)^2\bigr] = \mathbb{E}[f-\hat{f}]^2 + \mathbb{V}(\hat{f}) + \mathbb{V}(\varepsilon)
     $$
     
     * The unbiased predictor is not usually the minimum-error predictor, but most models are based on unbiasedness!
@@ -129,7 +128,7 @@ $\rightarrow$ can maybe help us set up models and hypotheses!
 Trees recursively partition the covariate space so that going down to each node, the
 variance of the $y$ value in the subset is low and $y$’s are better predicted.
 
-![Figure from Beaulac and Rosenthal(2019)](figures/decision_tree_illustration.png){width=60%}
+![Figure from Beaulac and Rosenthal(2019)](figures/decision_tree_illustration.png){width=55%}
 
 We do this by choosing $X_i$ and cutoff $k$ and minimize
 
@@ -197,17 +196,17 @@ ggplot(kyphosis, aes(x = Start, y = Age)) +
 ### CART
 
 $$ 
-\hat{Y}_{i,C} \bigl(S^{tr}, \Pi_C(S^{tr})) = \sum_{\mathcal{l} \in \Pi(S^{tr})} \hat{\mu_\mathcal{l}} (x; S^{tr}, \Pi_C(S^{tr})) 
+\hat{Y}_{i,C} \bigl(S^{tr}, \Pi_C(S^{tr})) = \sum_{\mathcal{l} \in \Pi(S^{tr})} \hat{\mu_\mathcal{l}} (x; S^{\color{red} tr}, \Pi_C(S^{tr})) 
 $$
 
 ### Honest
 
 $$
-\hat{Y}_{i,H} \bigl(S^{tr}, \Pi_H(S^{tr})) = \sum_{\mathcal{l} \in \Pi(S^{tr})} \hat{\mu_\mathcal{l}} (x; S^{est}, \Pi_H(S^{tr})) 
+\hat{Y}_{i,H} \bigl(S^{tr}, \Pi_H(S^{tr})) = \sum_{\mathcal{l} \in \Pi(S^{tr})} \hat{\mu_\mathcal{l}} (x; S^{\color{red} est}, \Pi_H(S^{tr})) 
 $$
 
 where 
-$$\hat{\mu}_\mathcal{l}(x; S. \Pi) = \frac{1}{\#(i \in S: X_i \in \mathcal{l}(x;\Pi))}\sum_{i\in S: X_i \in \mathcal{l}(x;\Pi)} Y_i
+$$\hat{\mu}_\mathcal{l}(x; S, \Pi) = \frac{1}{\#(i \in S: X_i \in \mathcal{l}(x;\Pi))}\sum_{i\in S: X_i \in \mathcal{l}(x;\Pi)} Y_i
 $$
 
 ## Limitations of CART
@@ -217,7 +216,7 @@ $$
 
 
  
- Let $\mathbb{X} = \{L,R\}$
+ Suppose the feature space is $\quad \mathbb{X} = \{L,R\}$
 
 Recursive partitioning simply does the following:
 
