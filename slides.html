@@ -339,29 +339,27 @@ Wooyong Park, Joonwoo Shin, Jeongwoo Yang, Minseo Seo
 <section id="cart-for-heterogeneous-treatment-effects" class="slide level2">
 <h2>CART For Heterogeneous Treatment Effects?</h2>
 <ol type="1">
-<li>Model and Estimation {% raw %}
+<li><p>Model and Estimation</p>
 <ul>
-<li>Model type: Tree structure with <span class="math inline">\mathcal{S}^{\color{red}{tr}}</span> (Grow and prune)</li>
-<li>Estimate with <span class="math inline">\mathcal{S}^{\color{red}{tr}}</span>.</li>
+<li><p>Model type: Tree structure with <span class="math inline">\mathcal{S}^{\color{red}{tr}}</span> (Grow and prune)</p></li>
+<li><p>Estimate with <span class="math inline">\mathcal{S}^{\color{red}{tr}}</span>.</p></li>
 </ul></li>
 </ol>
 <p><span class="math display">
             \hat{\tau}(x;\mathcal{S}^{\color{red} \text{tr}},\Pi) = \hat{\mu}(1,x;\mathcal{S}^{\color{red}{tr}},\Pi)-\hat{\mu}(0,x;\mathcal{S}^{\color{red}{tr}},\Pi)
 </span></p>
-<p>{% endraw %}</p>
 <ol start="2" type="1">
 <li>Criterion Function (for fixed complexity parameter <span class="math inline">\lambda</span>)
 <ul>
 <li>In-sample Goodness-of-fit function: <span style="color: red;">NOT FEASIBLE</span> <span class="math display">
       Q^{is}=-MSE=-\frac{1}{N}\sum_{i=1}^{N}(\tau_i-\hat{\tau}_i)^2
 </span></li>
-<li>Criterion: <span class="math inline">Q^{crit}=Q^{is}-\lambda\cdot\#|\Pi|</span> {% raw %}<br>
-</li>
+<li>Criterion: <span class="math inline">Q^{crit}=Q^{is}-\lambda\cdot\#|\Pi|</span></li>
 </ul></li>
 <li>Cross-validation approach with <span class="math inline">\mathcal{S}^{{\color{red} \text{te}}}</span>
 <ul>
 <li>Approach: cv on grid of complexity parameters. Select complexity parameter <span class="math inline">\lambda</span> with the highest out-of-sample goodness-of-fit <span class="math inline">{Q}^{\text{os}}</span>.</li>
-<li><span class="math inline">{Q}^{\text{os}}=-MSE</span> {% endraw %}</li>
+<li><span class="math inline">{Q}^{\text{os}}=-MSE</span></li>
 </ul></li>
 </ol>
 </section>
@@ -378,19 +376,21 @@ Wooyong Park, Joonwoo Shin, Jeongwoo Yang, Minseo Seo
 <ul>
 <li>Split sample; one to build tree, the other to estimate effects.</li>
 </ul></li>
-<li><p>NEW criterion {% raw %} <span class="math display">\begin{align*}
+<li><p>NEW criterion</p>
+<p><span class="math display">\begin{align*}
       -\mathbb{E}_{\mathcal{S}^{\color{red}{te}}, \mathcal{S}^{\color{red}{est}}}[\sum_{i\in \mathcal{S}^{\color{red}{te}}}(\tau_i-\hat{\tau}(X_i;\mathcal{S}^{\color{red}est}))^2]
-  \end{align*}</span> {% endraw %}</p></li>
+  \end{align*}</span></p></li>
 </ul>
 </section>
 <section id="new-criterion-for-honest-causal-tree" class="slide level2">
 <h2>New Criterion for Honest Causal Tree</h2>
-<p>Given <span class="math inline">\Pi</span>, {% raw %} <span class="math display">\begin{align*}
+<p>Given <span class="math inline">\Pi</span>,</p>
+<p><span class="math display">\begin{align*}
         \text{MSE}_{\tau}(\mathcal{S^{{\color{red}\text{te}}}},\mathcal{S^{{\color{red}\text{est}}}}) &amp;\equiv \frac{1}{\text{N}^{\color{red}\text{te}}}\sum_{i\in \mathcal{S^{{\color{red}\text{te}}}}}(\tau_i-\hat{\tau}(X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi))^2 \notag \\
         &amp;= \frac{1}{\text{N}^{\color{red}\text{te}}}\sum_{i\in \mathcal{S^{{\color{red}\text{te}}}}}(\tau_i^2-2\tau_i\cdot \hat{\tau}(X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi)+\hat{\tau}^2 (X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi)) \\
         EMSE &amp;=\mathbb{E}_{\mathcal{S}^{\color{red}{te}}, \mathcal{S}^{\color{red}{est}}}[\sum_{i\in \mathcal{S}^{\color{red}{te}}}(\tau_i-\hat{\tau}(X_i;\mathcal{S}^{\color{red}est}))^2] \\
         &amp;= \mathbb{V}_{\mathcal{S}^{\text{est}}, X_i}[\hat{\tau}(X_i; \mathcal{S}^{\text{est}},\Pi)]-\mathbb{E}_{X_i}[\tau^2(X_i;\Pi)]+\cancel{\mathbb{E}[\tau_i^2]}
-\end{align*}</span> {% endraw %}</p>
+\end{align*}</span></p>
 <ul>
 <li><p>Again, the last equality holds by the “honesty” that <span class="math inline">\mathcal{S}^{est}\perp \Pi</span></p></li>
 <li><p>Why <span class="math inline">\mathbb{V}[\hat{\tau}]</span> in <span class="math inline">EMSE</span>?</p>
@@ -441,14 +441,17 @@ Wooyong Park, Joonwoo Shin, Jeongwoo Yang, Minseo Seo
 <section id="alternative-methods-for-constructing-trees" class="slide level2">
 <h2>Alternative Methods for Constructing Trees</h2>
 <h3 id="fit-based-trees-f">(1) Fit-based Trees (F)</h3>
-<p>{% raw %} - Regressors: intercept(average) { + dummy variable for treatment} {% endraw %} - goodness-of-fit {% raw %} <span class="math display">
+<ul>
+<li><p>Regressors: intercept(average) { + dummy variable for treatment}</p></li>
+<li><p>goodness-of-fit</p></li>
+</ul>
+<p><span class="math display">
     MSE_{\mu,W}(\mathcal{S}^{te},\mathcal{S}^{est},\Pi) \equiv
     \sum_{i\in\mathcal{S}^{te}}
     ((Y_i^{\text{obs}}-
     \hat{\mu}_w({\color{red}W_i},X_i;\mathcal{S}^{est},\Pi))^2
     -{Y_i^{\text{obs}}}^2)
 </span></p>
-<p>{% endraw %}</p>
 <ul>
 <li>Pros: MSE is feasible (No <span class="math inline">\tau_i</span> terms)</li>
 <li>Cons: NO <span style="color: blue;">reward</span> for heterogeneity of treatment effects\ (c.f. <span class="math inline">\sum\hat{\tau}^2</span> term in Causal Tree MSE)</li>
@@ -457,11 +460,18 @@ Wooyong Park, Joonwoo Shin, Jeongwoo Yang, Minseo Seo
 <section id="alternative-methods-for-constructing-trees-1" class="slide level2">
 <h2>Alternative Methods for Constructing Trees</h2>
 <h3 id="squared-t-statistic-trees-ts">(2) Squared T-statistic Trees (TS)</h3>
-<p>{% raw %} - Split Rule: Test <span class="math inline">H_0</span>, the {average treatment eﬀect} is the same in the two potential leaves, with <span class="math inline">T^2</span></p>
+<ul>
+<li>Split Rule: Test <span class="math inline">H_0</span>, the {average treatment eﬀect} is the same in the two potential leaves, with <span class="math inline">T^2</span></li>
+</ul>
 <p><span class="math display">\begin{align*}
     T^2 \equiv N \cdot
     \frac{({\color{red}\overline{\tau}_L-\overline{\tau}_R})^2}{S^2/N_L+S^2/N_R}
-\end{align*}</span> {% endraw %} where <span class="math inline">S^2</span> is the conditional sample variance given the split - Pros: (only) rewards for heterogeneity of treatment effects - Cons: no value on splits that improve the <span style="color: blue;">fit</span>(c.f. <strong>Fit-based Trees</strong>)</p>
+\end{align*}</span></p>
+<pre><code>    where $S^2$ is the conditional sample variance given the split</code></pre>
+<ul>
+<li>Pros: (only) rewards for heterogeneity of treatment effects</li>
+<li>Cons: no value on splits that improve the <span style="color: blue;">fit</span>(c.f. <strong>Fit-based Trees</strong>)</li>
+</ul>
 </section>
 <section id="simulation-study-set-up" class="slide level2">
 <h2>Simulation Study: Set-up</h2>
@@ -633,8 +643,11 @@ Wooyong Park, Joonwoo Shin, Jeongwoo Yang, Minseo Seo
 </ul></li>
 <li>Benefit
 <ul>
-<li>EASY {% raw %}</li>
-<li>Holding tree from <span class="math inline">\mathcal{S}^{\color{red}tr}</span> fixed, can use standard methods to conduct inference (confidence interval) within each leaf of the tree on <span class="math inline">\mathcal{S}^{\color{red}te}</span> {% endraw %} (Disregard of the dimension of covariates)</li>
+<li><p>EASY</p></li>
+<li><p>Holding tree from <span class="math inline">\mathcal{S}^{\color{red}tr}</span> fixed, can use standard methods to conduct inference (confidence interval) within each leaf of the tree on <span class="math inline">\mathcal{S}^{\color{red}te}</span></p></li>
+</ul>
+(Disregard of the dimension of covariates)
+<ul>
 <li>No assumption on sparsity needed (c.f. nonparametric methods)</li>
 </ul></li>
 <li>vs Dishonest with double the sample

@@ -203,15 +203,20 @@ All combined we obtain unbiased estimator for honest target:
 ## CART For Heterogeneous Treatment Effects?
 
 1. Model and Estimation
-{% raw %}
-    - Model type: Tree structure with  $\mathcal{S}^{\color{red}{tr}}$ (Grow and prune)
-    - Estimate with $\mathcal{S}^{\color{red}{tr}}$.
+
+
+
+    - 
+    Model type: Tree structure with  $\mathcal{S}^{\color{red}{tr}}$ (Grow and prune) 
     
+    - Estimate with $\mathcal{S}^{\color{red}{tr}}$.
+
+
 $$
             \hat{\tau}(x;\mathcal{S}^{\color{red} \text{tr}},\Pi) = \hat{\mu}(1,x;\mathcal{S}^{\color{red}{tr}},\Pi)-\hat{\mu}(0,x;\mathcal{S}^{\color{red}{tr}},\Pi)
 $$
 
-{% endraw %}
+
 
 2.  Criterion Function (for fixed complexity parameter $\lambda$)
     - In-sample Goodness-of-fit function: <span style="color: red;">NOT FEASIBLE</span>
@@ -219,11 +224,11 @@ $$
             Q^{is}=-MSE=-\frac{1}{N}\sum_{i=1}^{N}(\tau_i-\hat{\tau}_i)^2
     $$
     - Criterion: $Q^{crit}=Q^{is}-\lambda\cdot\#|\Pi|$
-  {% raw %}  
+    
 3.  Cross-validation approach with $\mathcal{S}^{{\color{red} \text{te}}}$
     - Approach: cv on grid of complexity parameters. Select complexity parameter $\lambda$ with the highest out-of-sample goodness-of-fit ${Q}^{\text{os}}$.
     - ${Q}^{\text{os}}=-MSE$
-{% endraw %}
+
 
 ## Problems with using CART for HTE and its replacement
 
@@ -238,23 +243,23 @@ $$
     * Split sample; one to build tree, the other to estimate effects.
 
 - NEW criterion
-{% raw %}
+
     \begin{align*}
         -\mathbb{E}_{\mathcal{S}^{\color{red}{te}}, \mathcal{S}^{\color{red}{est}}}[\sum_{i\in \mathcal{S}^{\color{red}{te}}}(\tau_i-\hat{\tau}(X_i;\mathcal{S}^{\color{red}est}))^2]
     \end{align*}
-{% endraw %}
+
 
 ## New Criterion for Honest Causal Tree
 
 Given $\Pi$,
-{% raw %}
+
 \begin{align*}
         \text{MSE}_{\tau}(\mathcal{S^{{\color{red}\text{te}}}},\mathcal{S^{{\color{red}\text{est}}}}) &\equiv \frac{1}{\text{N}^{\color{red}\text{te}}}\sum_{i\in \mathcal{S^{{\color{red}\text{te}}}}}(\tau_i-\hat{\tau}(X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi))^2 \notag \\
         &= \frac{1}{\text{N}^{\color{red}\text{te}}}\sum_{i\in \mathcal{S^{{\color{red}\text{te}}}}}(\tau_i^2-2\tau_i\cdot \hat{\tau}(X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi)+\hat{\tau}^2 (X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi)) \\
         EMSE &=\mathbb{E}_{\mathcal{S}^{\color{red}{te}}, \mathcal{S}^{\color{red}{est}}}[\sum_{i\in \mathcal{S}^{\color{red}{te}}}(\tau_i-\hat{\tau}(X_i;\mathcal{S}^{\color{red}est}))^2] \\
         &= \mathbb{V}_{\mathcal{S}^{\text{est}}, X_i}[\hat{\tau}(X_i; \mathcal{S}^{\text{est}},\Pi)]-\mathbb{E}_{X_i}[\tau^2(X_i;\Pi)]+\cancel{\mathbb{E}[\tau_i^2]}
 \end{align*}
-{% endraw %}
+
 
 - Again, the last equality holds by the "honesty" that $\mathcal{S}^{est}\perp \Pi$
 
@@ -304,11 +309,11 @@ where $p=N^\text{tr}_\text{treat}/N^\text{tr}$
 ## Alternative Methods for Constructing Trees
 
 ### (1) Fit-based Trees (F)
-{% raw %}
+
 - Regressors: intercept(average) {\color{red} + dummy variable for treatment}
-{% endraw %}
+
 -  goodness-of-fit 
-{% raw %}
+
 $$
     MSE_{\mu,W}(\mathcal{S}^{te},\mathcal{S}^{est},\Pi) \equiv
     \sum_{i\in\mathcal{S}^{te}}
@@ -317,7 +322,7 @@ $$
     -{Y_i^{\text{obs}}}^2)
 $$
 
-{% endraw %}
+
 
 - Pros: MSE is feasible (No $\tau_i$ terms)
 -  Cons: NO <span style="color: blue;">reward</span> for heterogeneity of treatment effects\\
@@ -326,14 +331,14 @@ $$
 ## Alternative Methods for Constructing Trees
 
 ### (2) Squared T-statistic Trees (TS)
-{% raw %}
+
 - Split Rule: Test $H_0$, the {\color{red}average treatment eﬀect} is the same in the two potential leaves, with $T^2$
 
 \begin{align*}
     T^2 \equiv N \cdot
     \frac{({\color{red}\overline{\tau}_L-\overline{\tau}_R})^2}{S^2/N_L+S^2/N_R}
 \end{align*}
-    {% endraw %}
+    
         where $S^2$ is the conditional sample variance given the split
 - Pros: (only) rewards for heterogeneity of treatment effects
 - Cons: no value on splits that improve the <span style="color: blue;">fit</span>(c.f. **Fit-based Trees**)
@@ -482,9 +487,9 @@ TBU
     * Smaller # of samples $\rightarrow$ Less personalized predictions and lower MSE
 - Benefit
     * EASY
-    {% raw %}
+    
     * Holding tree from $\mathcal{S}^{\color{red}tr}$ fixed, can use standard methods to conduct inference (confidence interval) within each leaf of the tree on $\mathcal{S}^{\color{red}te}$
-    {% endraw %}
+    
     (Disregard of the dimension of covariates)
     * No assumption on sparsity needed (c.f. nonparametric methods)
 - vs Dishonest with double the sample
