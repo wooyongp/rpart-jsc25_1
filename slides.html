@@ -280,14 +280,18 @@ Wooyong Park, Joonwoo Shin, Jeongwoo Yang, Minseo Seo
 </div>
 </div>
 </div>
-<div class="fragment">
-<p>All combined we obtain unbiased estimator for honest target: <span class="math display">\begin{align*}
+</section>
+<section id="honest-target-estimation-1" class="slide level2">
+<h2>Honest Target: Estimation</h2>
+<p><span class="math display">
+     -\text{EMSE}_\mu=\mathbb{E}_{X_i}\left[\mu^2(X_i;\Pi)\right] - \mathbb{E}_{S^{est},X_i}\biggl[\mathbb{V}\bigl(\hat{\mu^2}(X_i;S^{est},\Pi)\bigr)\biggr]
+</span></p>
+<p>The two terms combined, we obtain unbiased estimator for honest target: <span class="math display">\begin{align*}
         \begin{aligned}
         -\widehat{\text{EMSE}_\mu}(S^{tr},N^{est},\Pi) =\qquad \qquad \qquad \qquad \qquad \qquad \qquad \qquad
         \\    \frac{1}{N^{tr}} \sum\limits_{i \in S^{tr}}\hat{\mu^2}(X_i;S^{tr},\Pi)-\left(\frac{1}{N^{tr}}+\frac{1}{N^{est}}\right)\cdot\sum\limits_{l \in \Pi}S^2_{S^{tr}}(l(x;\Pi))
         \end{aligned}
 \end{align*}</span></p>
-</div>
 </section>
 <section id="cart-vs-honest-1" class="slide level2">
 <h2>CART vs Honest</h2>
@@ -302,7 +306,9 @@ Wooyong Park, Joonwoo Shin, Jeongwoo Yang, Minseo Seo
         \\    \frac{1}{N^{tr}} \sum\limits_{i \in S^{tr}}\hat{\mu^2}(X_i;S^{tr},\Pi)-\left(\frac{1}{N^{tr}}+\frac{1}{N^{est}}\right)\cdot\sum\limits_{l \in \Pi}S^2_{S^{tr}}(l(x;\Pi))
         \end{aligned}
 \end{equation*}</span></p>
-<div class="fragment">
+</section>
+<section id="cart-vs-honest-2" class="slide level2">
+<h2>CART vs Honest</h2>
 <h3 id="pros-and-cons-of-honest">Pros and Cons of Honest</h3>
 <ul>
 <li>Pro:
@@ -312,7 +318,6 @@ Wooyong Park, Joonwoo Shin, Jeongwoo Yang, Minseo Seo
 </ul></li>
 <li>Con: smaller sample size, shallower tree, and less personalized predictions</li>
 </ul>
-</div>
 </section></section>
 <section>
 <section id="honest-inference-for-treatment-effects" class="title-slide slide level1 center">
@@ -338,8 +343,12 @@ Wooyong Park, Joonwoo Shin, Jeongwoo Yang, Minseo Seo
 </section>
 <section id="cart-for-heterogeneous-treatment-effects" class="slide level2">
 <h2>CART For Heterogeneous Treatment Effects?</h2>
+<div class="panel-tabset">
+<ul id="tabset-3" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-3-1">Model</a></li><li><a href="#tabset-3-2">Criterion</a></li><li><a href="#tabset-3-3">Cross-Validation</a></li></ul>
+<div class="tab-content">
+<div id="tabset-3-1">
 <ol type="1">
-<li><p>Model and Estimation</p>
+<li>Model and Estimation
 <ul>
 <li><p>Model type: Tree structure with <span class="math inline">\mathcal{S}^{\color{red}{tr}}</span> (Grow and prune)</p></li>
 <li><p>Estimate with <span class="math inline">\mathcal{S}^{\color{red}{tr}}</span>.</p></li>
@@ -348,6 +357,8 @@ Wooyong Park, Joonwoo Shin, Jeongwoo Yang, Minseo Seo
 <p><span class="math display">
             \hat{\tau}(x;\mathcal{S}^{\color{red} \text{tr}},\Pi) = \hat{\mu}(1,x;\mathcal{S}^{\color{red}{tr}},\Pi)-\hat{\mu}(0,x;\mathcal{S}^{\color{red}{tr}},\Pi)
 </span></p>
+</div>
+<div id="tabset-3-2">
 <ol start="2" type="1">
 <li>Criterion Function (for fixed complexity parameter <span class="math inline">\lambda</span>)
 <ul>
@@ -356,12 +367,19 @@ Wooyong Park, Joonwoo Shin, Jeongwoo Yang, Minseo Seo
 </span></li>
 <li>Criterion: <span class="math inline">Q^{crit}=Q^{is}-\lambda\cdot\#|\Pi|</span></li>
 </ul></li>
+</ol>
+</div>
+<div id="tabset-3-3">
+<ol start="3" type="1">
 <li>Cross-validation approach with <span class="math inline">\mathcal{S}^{{\color{red} \text{te}}}</span>
 <ul>
 <li>Approach: cv on grid of complexity parameters. Select complexity parameter <span class="math inline">\lambda</span> with the highest out-of-sample goodness-of-fit <span class="math inline">{Q}^{\text{os}}</span>.</li>
 <li><span class="math inline">{Q}^{\text{os}}=-MSE</span></li>
 </ul></li>
 </ol>
+</div>
+</div>
+</div>
 </section>
 <section id="problems-with-using-cart-for-hte-and-its-replacement" class="slide level2">
 <h2>Problems with using CART for HTE and its replacement</h2>
@@ -420,7 +438,9 @@ Wooyong Park, Joonwoo Shin, Jeongwoo Yang, Minseo Seo
       \end{align*}</span></li>
 <li>Two terms are NOT proportional (c.f. Terms in <span class="math inline">\hat{EMSE}_\mu</span> are proportional)</li>
 </ul>
-<h3 id="sec-pro-con">Pros and Cons of Honest</h3>
+</section>
+<section id="sec-pro-con" class="slide level2">
+<h2>Pros and Cons of Honest</h2>
 <ul>
 <li>Pro:
 <ul>
@@ -466,8 +486,7 @@ Wooyong Park, Joonwoo Shin, Jeongwoo Yang, Minseo Seo
 <p><span class="math display">\begin{align*}
     T^2 \equiv N \cdot
     \frac{({\color{red}\overline{\tau}_L-\overline{\tau}_R})^2}{S^2/N_L+S^2/N_R}
-\end{align*}</span></p>
-<pre><code>    where $S^2$ is the conditional sample variance given the split</code></pre>
+\end{align*}</span> where <span class="math inline">S^2</span> is the conditional sample variance given the split</p>
 <ul>
 <li>Pros: (only) rewards for heterogeneity of treatment effects</li>
 <li>Cons: no value on splits that improve the <span style="color: blue;">fit</span>(c.f. <strong>Fit-based Trees</strong>)</li>
@@ -475,11 +494,11 @@ Wooyong Park, Joonwoo Shin, Jeongwoo Yang, Minseo Seo
 </section>
 <section id="simulation-study-set-up" class="slide level2">
 <h2>Simulation Study: Set-up</h2>
-<h4 id="goal-compare-the-performance-of-proposed-algorithms-adaptive-vs.-honest">Goal: Compare the performance of proposed algorithms (Adaptive vs.&nbsp;Honest)</h4>
+<p><strong>Goal: Compare the performance of proposed algorithms (Adaptive vs.&nbsp;Honest)</strong></p>
 <div class="panel-tabset">
-<ul id="tabset-3" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-3-1">Outcome</a></li><li><a href="#tabset-3-2">Model</a></li><li><a href="#tabset-3-3">Design</a></li></ul>
+<ul id="tabset-4" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-4-1">Outcome</a></li><li><a href="#tabset-4-2">Model</a></li><li><a href="#tabset-4-3">Design</a></li></ul>
 <div class="tab-content">
-<div id="tabset-3-1">
+<div id="tabset-4-1">
 <ul>
 <li>Evaluate Mean Squared Error (MSE) for each method</li>
 <li>Evaluate 90% confidence interval coverage for each method</li>
@@ -511,20 +530,19 @@ Wooyong Park, Joonwoo Shin, Jeongwoo Yang, Minseo Seo
 </tbody>
 </table>
 </div>
-<div id="tabset-3-2">
+<div id="tabset-4-2">
 <p><span class="math display">
     Y_i(w) = \eta(X_i) + \frac{1}{2}\cdot (2w-1) \cdot \kappa (X_i) + \epsilon_i
 </span></p>
 <p><span class="math inline">\text{where} \quad \epsilon_i \sim N(0,.01), X_i \sim N(0,1) \quad \text{with} \quad \epsilon_i\perp X_i \quad \text{and }X_i\perp X_j</span></p>
 </div>
-<div id="tabset-3-3">
+<div id="tabset-4-3">
 <p>We have three different setups:</p>
 <ol type="1">
 <li><span class="math inline">K=2; \quad \eta(x) = \frac{1}{2}x_1 + x_2; \quad \kappa(x) = \frac{1}{2}x_1</span></li>
 <li><span class="math inline">K=10; \quad \eta(x) = \frac{1}{2}(x_1+x_2) + \sum_{k=3}^6 x_k; \quad \kappa(x) = \frac{2}{1}\mathbb{I}\{x_k &gt;0\}\cdot x_k</span></li>
-<li><span class="math inline">K=20; \quad \eta(x) = \frac{1}{2}\sum_{k=1}^4 x_k + \sum_{k=5}^8 x_k; \quad \kappa(x) = \mathbb{I}\{x_k&gt;0\} \cdot x_k</span></li>
+<li><span class="math inline">K=20; \quad \eta(x) = \frac{1}{2}\sum_{k=1}^4 x_k + \sum_{k=5}^8 x_k; \quad \kappa(x) = \mathbb{I}\{x_k&gt;0\} \cdot x_k</span> <br></li>
 </ol>
-<p><br></p>
 <ul>
 <li>Design 1: a simple model with two covariates. HTE is linear with <span class="math inline">x_1</span></li>
 <li>Design 2: six covariates and two that interacts with TE. HTE is non linear</li>
@@ -618,10 +636,25 @@ Wooyong Park, Joonwoo Shin, Jeongwoo Yang, Minseo Seo
 <section id="conclusion" class="slide level2">
 <h2>Conclusion</h2>
 <ul>
-<li><p>By having a separate estimation set, tree-based ML approach can be used for estimating and testing heterogeneous treatment effects!</p></li>
-<li><p>It imposes no restrictions on model complexity or the number of covariates, which helps setting data-driven hypotheses.</p></li>
-<li><p>Different criterions can be used(fit, T-squared, etc.), but our baseline estimator(CT-H) performs the best in simulation.</p></li>
-<li><p>Can be extended to observational studies!</p></li>
+<li>By having a separate estimation set, tree-based ML approach can be used for estimating and testing heterogeneous treatment effects!</li>
+</ul>
+<div style="margin-bottom: 0.5em;">
+
+</div>
+<ul>
+<li>It imposes no restrictions on model complexity or the number of covariates, which helps setting data-driven hypotheses.</li>
+</ul>
+<div style="margin-bottom: 0.5em;">
+
+</div>
+<ul>
+<li>Different criterions can be used(fit, T-squared, etc.), but our baseline estimator(CT-H) performs the best in simulation.</li>
+</ul>
+<div style="margin-bottom: 0.5em;">
+
+</div>
+<ul>
+<li>Can be extended to observational studies!</li>
 </ul>
 </section>
 <section id="materials" class="slide level2">

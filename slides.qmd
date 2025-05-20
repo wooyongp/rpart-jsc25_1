@@ -141,9 +141,13 @@ $$
 
 :::
 
-::: {.fragment}
+## Honest Target: Estimation
 
-All combined we obtain unbiased estimator for honest target:
+$$
+     -\text{EMSE}_\mu=\mathbb{E}_{X_i}\left[\mu^2(X_i;\Pi)\right] - \mathbb{E}_{S^{est},X_i}\biggl[\mathbb{V}\bigl(\hat{\mu^2}(X_i;S^{est},\Pi)\bigr)\biggr]
+$$
+
+The two terms combined, we obtain unbiased estimator for honest target:
 \begin{align*}
         \begin{aligned}
         -\widehat{\text{EMSE}_\mu}(S^{tr},N^{est},\Pi) =\qquad \qquad \qquad \qquad \qquad \qquad \qquad \qquad 
@@ -151,7 +155,7 @@ All combined we obtain unbiased estimator for honest target:
         \end{aligned}
 \end{align*}
 
-:::
+
 
 ## CART vs Honest
 
@@ -170,7 +174,7 @@ All combined we obtain unbiased estimator for honest target:
         \end{aligned}
 \end{equation*}
 
-::: {.fragment}
+## CART vs Honest
 
 ### Pros and Cons of Honest
 - Pro: 
@@ -179,7 +183,7 @@ All combined we obtain unbiased estimator for honest target:
 - Con: smaller sample size, shallower tree, and less personalized predictions
 
 
-:::
+
 
 
 # Honest Inference for Treatment Effects
@@ -202,12 +206,12 @@ All combined we obtain unbiased estimator for honest target:
 
 ## CART For Heterogeneous Treatment Effects?
 
+
+::: {.panel-tabset}
+
+### Model
 1. Model and Estimation
-
-
-
-    - 
-    Model type: Tree structure with  $\mathcal{S}^{\color{red}{tr}}$ (Grow and prune) 
+    - Model type: Tree structure with  $\mathcal{S}^{\color{red}{tr}}$ (Grow and prune) 
     
     - Estimate with $\mathcal{S}^{\color{red}{tr}}$.
 
@@ -217,7 +221,7 @@ $$
 $$
 
 
-
+### Criterion
 2.  Criterion Function (for fixed complexity parameter $\lambda$)
     - In-sample Goodness-of-fit function: <span style="color: red;">NOT FEASIBLE</span>
     $$
@@ -225,10 +229,12 @@ $$
     $$
     - Criterion: $Q^{crit}=Q^{is}-\lambda\cdot\#|\Pi|$
     
+### Cross-Validation
 3.  Cross-validation approach with $\mathcal{S}^{{\color{red} \text{te}}}$
     - Approach: cv on grid of complexity parameters. Select complexity parameter $\lambda$ with the highest out-of-sample goodness-of-fit ${Q}^{\text{os}}$.
     - ${Q}^{\text{os}}=-MSE$
 
+:::
 
 ## Problems with using CART for HTE and its replacement
 
@@ -293,7 +299,7 @@ where $p=N^\text{tr}_\text{treat}/N^\text{tr}$
 - Two terms are NOT proportional
     (c.f. Terms in $\hat{EMSE}_\mu$ are proportional)
 
-### Pros and Cons of Honest {#sec-pro-con}
+## Pros and Cons of Honest {#sec-pro-con}
 - Pro: 
     * Honest target not only removes potential bias in leaf estimates but also penalizes high variance
     * enables statistical testing(valid confidence intervals)
@@ -338,14 +344,14 @@ $$
     T^2 \equiv N \cdot
     \frac{({\color{red}\overline{\tau}_L-\overline{\tau}_R})^2}{S^2/N_L+S^2/N_R}
 \end{align*}
-    
-        where $S^2$ is the conditional sample variance given the split
+    where $S^2$ is the conditional sample variance given the split
+
 - Pros: (only) rewards for heterogeneity of treatment effects
 - Cons: no value on splits that improve the <span style="color: blue;">fit</span>(c.f. **Fit-based Trees**)
     
 ## Simulation Study: Set-up
 
-#### Goal: Compare the performance of proposed algorithms (Adaptive vs. Honest)
+ **Goal: Compare the performance of proposed algorithms (Adaptive vs. Honest)**
 
 ::: {.panel-tabset}
 
@@ -363,6 +369,7 @@ $$
 
 
 ### Model
+
 $$
     Y_i(w) = \eta(X_i) + \frac{1}{2}\cdot (2w-1) \cdot \kappa (X_i) + \epsilon_i
 $$
@@ -376,9 +383,7 @@ We have three different setups:
 1. $K=2; \quad \eta(x) = \frac{1}{2}x_1 + x_2; \quad \kappa(x) = \frac{1}{2}x_1$
 2. $K=10; \quad \eta(x) = \frac{1}{2}(x_1+x_2) + \sum_{k=3}^6 x_k; \quad \kappa(x) = \frac{2}{1}\mathbb{I}\{x_k >0\}\cdot x_k$
 3. $K=20; \quad \eta(x) = \frac{1}{2}\sum_{k=1}^4 x_k + \sum_{k=5}^8 x_k; \quad \kappa(x) = \mathbb{I}\{x_k>0\} \cdot x_k$
-
 <br>
-
 * Design 1: a simple model with two covariates. HTE is linear with $x_1$
 * Design 2: six covariates and two that interacts with TE. HTE is non linear 
 * Design 3: eight covariates and four that interacts with TE. HTE is non linear 
@@ -466,10 +471,15 @@ We have three different setups:
 ## Conclusion
 - By having a separate estimation set, tree-based ML approach can be used for estimating and testing heterogeneous treatment effects!
 
+<div style="margin-bottom: 0.5em;"></div>
+
 - It imposes no restrictions on model complexity or the number of covariates, which helps setting data-driven hypotheses.
 
+<div style="margin-bottom: 0.5em;"></div>
 
 - Different criterions can be used(fit, T-squared, etc.), but our baseline estimator(CT-H) performs the best in simulation.
+
+<div style="margin-bottom: 0.5em;"></div>
 
 - Can be extended to observational studies!
 
