@@ -184,7 +184,7 @@ ggplot(kyphosis, aes(x = Start, y = Age)) +
 ::::
 
 ### Forests
-![Figure Source: Datacamp](figures/random_forest.png)
+![Figure Source: Datacamp](figures/random_forest.png){width=65%}
 
 ::::
 
