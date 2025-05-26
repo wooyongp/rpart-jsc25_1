@@ -1,7 +1,7 @@
 ---
 title: Recursive Partitioning <br> for Heterogeneous Causal Effects
 subtitle: Susan Athey and Guido Imbens(2016)
-author: Wooyong Park, Joonwoo Shin, Jeongwoo Yang, Minseo Seo
+author: Wooyong Park, Joonwoo Shin, Jeongwoo Yang, Minseo Seok
 format: coeos-revealjs
 ---
 
@@ -102,10 +102,7 @@ Athey and Imbens(2016): Tree-based model, a ML algorithm, can hint on how to cho
 In terms of prediction, OLS($\mathrm{y}=X'\beta +\varepsilon$) is not good enough.
 
 ::: {.fragment .custom .fadein-gray}
-1. Non-linear relations
-    * e.g., $y=\beta_0 +\beta_1 x\cdot\mathbb{I(x \in (a,b))} +\varepsilon$
 
-::: {.fragment .custom .fadein-gray}
 
 2. Bias-Variance tradeoff in Prediction
     * Let $y=f(x) +\varepsilon$ be the true DGP and $\hat{f}$ be our fitted model.
@@ -114,7 +111,7 @@ In terms of prediction, OLS($\mathrm{y}=X'\beta +\varepsilon$) is not good enoug
     \mathbb{E}\bigl[\bigl(f(x)+\varepsilon-\hat{f}(x)\bigr)^2\bigr] = \mathbb{E}[f-\hat{f}]^2 + \mathbb{V}(\hat{f}) + \mathbb{V}(\varepsilon)
     $$
     
-    * The unbiased predictor is not usually the minimum-error predictor, but most models are based on unbiasedness!
+    * The unbiased predictor is not usually the minimum-error predictor, but most models/estimations including OLS focus on unbiasedness!
 
 ::: {.fragment .custom .fadein-gray}
 
@@ -124,43 +121,22 @@ $\rightarrow$ can maybe help us set up models and hypotheses!
 
 :::
 
-:::
 
 :::
 
-## Tree-based models
+## Classification and Regression Trees(CART)
 
 :::: {.panel-tabset}
 
 
 ### Trees (1)
 
-
 * Trees recursively partition the covariate space so that MSE decreases each time we add a partition.
 
-![Figure from Beaulac and Rosenthal(2019)](figures/decision_tree_illustration.png)
+::::{.columns}
 
-### Trees (2)
+:::{.column width="70%"}
 
-* Trees recursively partition the covariate space so that MSE decreases each time we add a partition.
-
-0. Split the data into $S^{tr}$(training) and $S^{te}$(test).
-
-1. Choose $X_i$ and cutoff $k$ and minimize
-
-$$
-\sum_{i \in L}(y_i-\overline{y}_L)^2 +\sum_{i \in R}(y_i-\overline{y}_R)^2
-$$
-
-2. $\hat{y}(\text{leaf}) = \overline{y}_{(\text{leaf})} \quad$ (i.e. sample mean)
-
-3. Compute the model performance in $S^{te}$.
-
-
-### Code
-:::: {.columns}
-
-::: {.column width="60%"}
 ```{r}
 #| echo: true
 #| output: true
@@ -187,26 +163,119 @@ ggplot(kyphosis, aes(x = Start, y = Age)) +
 
 :::
 
-::: {.column width="40%"}
-* Parameters: criterion variable
-* Hyperparameters: tree depth, min. obs. per leaf
 
-::: {.fragment}
-* **Caution:** 
-
-    Sample mean within a leaf is not unbiased, because model building and estimation is done jointly.
-    
-    $\rightarrow$ **Honest Algorithm**
-    
-    + We compute the sample mean in $S^{est}$.
-:::
+:::{.column width="30%"}
 
 :::
 
 ::::
 
-### Forests
-![Figure Source: Datacamp](figures/random_forest.png){width=65%}
+### Trees (2)
+
+
+* Trees recursively partition the covariate space so that MSE decreases each time we add a partition.
+
+![Figure from Beaulac and Rosenthal(2019)](figures/decision_tree_illustration.png)
+
+### Trees (3)
+
+* Trees recursively partition the covariate space so that MSE decreases each time we add a partition.
+
+1. Split the data into $S^{tr}$(training) and $S^{te}$(test).
+
+2. Choose $X_i$ and cutoff $k$ and minimize MSE:
+
+$$
+\sum_{i \in L}(y_i-\overline{y}_L)^2 +\sum_{i \in R}(y_i-\overline{y}_R)^2
+$$
+
+3. Repeat this process of
+
+4. $\hat{y}(\text{leaf}) = \overline{y}_{(\text{leaf})} \quad$ (i.e. sample mean)
+
+5. Evaluate the prediction performance in $S^{te}$.
+
+::::
+
+
+## CART - Best predictor, but biased
+
+:::: {.panel-tabset}
+
+### Sample mean of each leaf
+
+```{r}
+#| echo: true
+#| output: true
+#| message: false
+
+# Load required library
+library(rpart)
+library(ggplot2)
+library(rpart.plot)
+
+set.seed(123)
+
+# simulate data and apply CART with two features
+n <- 100
+
+x1 <- runif(n, 0, 10)
+x2 <- runif(n, -5, 5)
+y <- 1 + 2 * x1 + 3 * x2 * as.numeric(x2>0) + rnorm(n, 0, 1)  # True relationship: y = 1 + 2 x1 + 3 x2*I(x2>0) + noise
+    
+# Fit regression tree
+data <- data.frame(x1 = x1, x2 = x2, y = y)
+tree_model <- rpart(y ~ x1 + x2, data = data, control = rpart.control(cp = 0.01))
+    
+# Pruning
+best <- tree_model$cptable[which.min(tree_model$cptable[,"xerror"]),"CP"]
+pruned_tree <- prune(tree_model, cp=best)
+
+rpart.plot(pruned_tree, digits=3)
+```
+
+
+### Actual Sample Mean with Larger / independent samples
+
+```{r}
+#| echo: true
+#| output: true
+#| message: false
+
+# Load required library
+library(tidyverse)
+
+# Make a data and compute the sample mean in each leaf
+n <- 10000000
+
+x1 <- runif(n, 0, 10)
+x2 <- runif(n, -5, 5)
+y <- 1 + 2 * x1 + 3 * x2 * as.numeric(x2>0) + rnorm(n, 0, 1)  # True relationship: y = 1 + 2 x1 + 3 x2*I(x2>0) + noise
+
+data <- tibble(x1 = x1, x2 = x2, y = y) |> 
+    mutate(leaf = case_when(
+        x1<2.4 & x2<1.34 ~ "1",
+        x1>2.4 & x2<1.34 & x1<4.16 ~ "2",
+        x1<4.16 & x2>=1.34 ~ "3",
+        x1<6.84 & x1>=4.16 & x2<3.61 ~ "4",
+        x1<6.84 & x2>=3.61 ~ "5",
+        x1>=6.84 & x2<0.237 ~ "6",
+        x1>=6.84 & x2>=0.237 & x2<2.39 ~ "7",
+        x1>=6.84 & x2>=2.39 ~ "8"
+    ))
+
+df <- data |> group_by(leaf) |> summarize(unbiased_mean = mean(y)) |> 
+    mutate(tree_mean = c(4.35, 8.26, 11.6, 12.94, 19.85, 17.84, 22.15, 29.02))
+
+ggplot(df, aes(as.numeric(leaf))) +
+    geom_point(aes(y=unbiased_mean, color='ub')) +
+    geom_point(aes(y=tree_mean, color = 'b')) +
+    scale_x_continuous(labels = 1:8, breaks=1:8) +
+    scale_color_manual(name =NULL,  values=c("ub" = "red", "b" = "blue"), labels = c("tree", "true DGP")) +
+    labs(title = "CART mean vs true mean", x="leaf", y="mean") +
+    theme_bw()
+
+```
 
 ::::
 
@@ -762,7 +831,7 @@ We have three different setups:
 [<ins>More results</ins>](/#/sec-sim-app)
 </p>
 
-## Observational Studies with Unconfoundedness
+<!-- ## Observational Studies with Unconfoundedness
 
 - Causal Trees can be applied to observational studies under the assumption of unconfoundedness (treatment is independent of potential outcomes given covariates).
 
@@ -776,7 +845,7 @@ We have three different setups:
 
 <div style="margin-bottom: 0.5em;"></div>
 
-- These adjustments can be integrated into the honest estimation phase, and the resulting estimators remain asymptotically normal, allowing for valid inference.
+- These adjustments can be integrated into the honest estimation phase, and the resulting estimators remain asymptotically normal, allowing for valid inference. -->
 
 
 
