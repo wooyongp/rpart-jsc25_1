@@ -305,8 +305,8 @@ $$
     + does not consider variance in tree splitting
 
 
- ::: {.fragment .custom .fadein-gray}
- 
+::: {.fragment .custom .fadein-gray}
+
  Suppose the feature space is $\quad \mathbb{X} = \{L,R\}$
 
 Recursive partitioning simply does the following:
