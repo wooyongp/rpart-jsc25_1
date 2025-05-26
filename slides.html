@@ -6,8 +6,8 @@
 <script src="slides_files/libs/quarto-html/tippy.umd.min.js"></script>
 <link href="slides_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="slides_files/libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="slides_files/libs/quarto-html/quarto-syntax-highlighting-f8dc6eab18fde03278982b0b35885446.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.6.40">
+<link href="slides_files/libs/quarto-html/quarto-syntax-highlighting-e2182856f2c32102dd26b05a5ef16cb5.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.7.30">
 
   <meta name="author" content="Wooyong Park, Joonwoo Shin, Jeongwoo Yang, Minseo Seo">
   <title>Recursive Partitioning   for Heterogeneous Causal Effects</title>
@@ -29,8 +29,9 @@
       vertical-align: middle;
     }
     /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
     pre > code.sourceCode { white-space: pre; position: relative; }
-    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
     pre > code.sourceCode > span:empty { height: 1.2em; }
     .sourceCode { overflow: visible; }
     code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -41,7 +42,7 @@
     }
     @media print {
     pre > code.sourceCode { white-space: pre-wrap; }
-    pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
     }
     pre.numberSource code
       { counter-reset: source-line 0; }
@@ -94,7 +95,7 @@
     code span.vs { color: #9ecbff; } /* VerbatimString */
     code span.wa { color: #ff5555; } /* Warning */
   </style>
-  <link rel="stylesheet" href="slides_files/libs/revealjs/dist/theme/quarto-0382d29f2f6b4fe043760c765480376b.css">
+  <link rel="stylesheet" href="slides_files/libs/revealjs/dist/theme/quarto-c62d3fccb7eb8a08287c3fc504beacbc.css">
   <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
  var mathElements = document.getElementsByClassName("math");
@@ -230,7 +231,7 @@ Wooyong Park, Joonwoo Shin, Jeongwoo Yang, Minseo Seo
 <h2>Causal Inference with binary treatment</h2>
 <p>Research Question:</p>
 <p>Does a smile in your online profile help your online micro-borrowing?(Athey et al, 2022 <small>NBER WP</small>)</p>
-<div class="fragment">
+<div class="fragment custom fadein-gray">
 <ul>
 <li><span class="math inline">W_i \in \{0,1\}</span> : Your treatment status</li>
 </ul>
@@ -317,33 +318,36 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <section id="tree-based-models" class="slide level2">
 <h2>Tree-based models</h2>
 <div class="panel-tabset">
-<ul id="tabset-1" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-1-1">Trees</a></li><li><a href="#tabset-1-2">Code</a></li><li><a href="#tabset-1-3">Forests</a></li></ul>
+<ul id="tabset-1" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-1-1">Trees (1)</a></li><li><a href="#tabset-1-2">Trees (2)</a></li><li><a href="#tabset-1-3">Code</a></li><li><a href="#tabset-1-4">Forests</a></li></ul>
 <div class="tab-content">
 <div id="tabset-1-1">
-<div class="columns">
-<div class="column" style="width:60%;">
 <ul>
-<li>Trees recursively partition the covariate space so that going down to each node, the variance of the <span class="math inline">y</span> value in the subset is low and <span class="math inline">y</span>’s are better predicted.</li>
+<li>Trees recursively partition the covariate space so that MSE decreases each time we add a partition.</li>
 </ul>
-<ol type="1">
-<li>Choose <span class="math inline">X_i</span> and cutoff <span class="math inline">k</span> and minimize</li>
-</ol>
-<p><span class="math display">
-\sum_{i \in L}(y_i-\overline{y}_L)^2 +\sum_{i \in R}(y_i-\overline{y}_R)^2
-</span></p>
-<ol start="2" type="1">
-<li><span class="math inline">\hat{y}(\text{leaf}) = \overline{y}_{(\text{leaf})} \quad (\text{i.e., sample mean})</span></li>
-</ol>
-</div><div class="column" style="width:40%;">
 <div class="quarto-figure quarto-figure-center">
 <figure>
 <p><img data-src="figures/decision_tree_illustration.png"></p>
 <figcaption>Figure from Beaulac and Rosenthal(2019)</figcaption>
 </figure>
 </div>
-</div></div>
 </div>
 <div id="tabset-1-2">
+<ul>
+<li>Trees recursively partition the covariate space so that MSE decreases each time we add a partition.</li>
+</ul>
+<ol start="0" type="1">
+<li><p>Split the data into <span class="math inline">S^{tr}</span>(training) and <span class="math inline">S^{te}</span>(test).</p></li>
+<li><p>Choose <span class="math inline">X_i</span> and cutoff <span class="math inline">k</span> and minimize</p></li>
+</ol>
+<p><span class="math display">
+\sum_{i \in L}(y_i-\overline{y}_L)^2 +\sum_{i \in R}(y_i-\overline{y}_R)^2
+</span></p>
+<ol start="2" type="1">
+<li><p><span class="math inline">\hat{y}(\text{leaf}) = \overline{y}_{(\text{leaf})} \quad</span> (i.e.&nbsp;sample mean)</p></li>
+<li><p>Compute the model performance in <span class="math inline">S^{te}</span>.</p></li>
+</ol>
+</div>
+<div id="tabset-1-3">
 <div class="columns">
 <div class="column" style="width:60%;">
 <div class="cell">
@@ -384,12 +388,15 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <ul>
 <li><p><strong>Caution:</strong></p>
 <p>Sample mean within a leaf is not unbiased, because model building and estimation is done jointly.</p>
-<p><span class="math inline">\rightarrow</span> <strong>Honest Algorithm</strong></p></li>
+<p><span class="math inline">\rightarrow</span> <strong>Honest Algorithm</strong></p>
+<ul>
+<li>We compute the sample mean in <span class="math inline">S^{est}</span>.</li>
+</ul></li>
 </ul>
 </div>
 </div></div>
 </div>
-<div id="tabset-1-3">
+<div id="tabset-1-4">
 <div class="quarto-figure quarto-figure-center">
 <figure>
 <p><img data-src="figures/random_forest.png" style="width:65.0%"></p>
@@ -409,22 +416,27 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <h2>CART vs Honest</h2>
 <h3 id="cart">CART</h3>
 <p><span class="math display">
-\hat{Y}_{i,C} \bigl(S^{tr}, \Pi_C(S^{tr})) = \sum_{\mathcal{l} \in \Pi(S^{tr})} \hat{\mu_\mathcal{l}} (x; S^{\color{red} tr}, \Pi_C(S^{tr}))
+\hat{Y_{i,c}}(\underbrace{S^{tr}}_{\text{training sample}},\underbrace{\pi_C(S^{tr})}_{\text{splitting for CART}})=\displaystyle\sum\limits_{l \in \pi_C(S^{tr})}\underbrace{\hat{\mu_l}(S^{tr},\pi_C(S^{tr}))}_{\text{within leaf estimate}}\mathbf{1}_{l}(x)
 </span></p>
 <h3 id="honest">Honest</h3>
 <p><span class="math display">
-\hat{Y}_{i,H} \bigl(S^{tr}, \Pi_H(S^{tr})) = \sum_{\mathcal{l} \in \Pi(S^{tr})} \hat{\mu_\mathcal{l}} (x; S^{\color{red} est}, \Pi_H(S^{tr}))
+\hat{Y_{i,H}}(\underbrace{{S^{\color{red} est}}}_{\text{estimation sample}},\underbrace{\pi_H(S^{tr})}_{\text{splitting for Honest}})=\displaystyle\sum\limits_{l \in \pi_H(S^{tr})}\hat{\mu_l}({S^{\color{red} est}},\pi_H(S^{tr}))\mathbf{1}_{l}(x)
 </span></p>
-<p>where <span class="math display">\hat{\mu}_\mathcal{l}(x; S, \Pi) = \frac{1}{\#(i \in S: X_i \in \mathcal{l}(x;\Pi))}\sum_{i\in S: X_i \in \mathcal{l}(x;\Pi)} Y_i
-</span></p>
+<ul>
+<li>where <span class="math inline">\hat{\mu_l}(S,\Pi)=\frac{1}{\#(i \in S :X_i \in l)}\sum\limits_{i \in S: X_i \in l}Y_i</span></li>
+<li>Honest means we are using two samples, one for splitting and one for within leaf estimating</li>
+</ul>
 </section>
 <section id="limitations-of-cart" class="slide level2">
 <h2>Limitations of CART</h2>
 <ul>
+<li>We cannot simply use CART to estimate HTE.
+<ul>
 <li>Potential bias in the leaf estimates</li>
 <li>does not consider variance in tree splitting</li>
+</ul></li>
 </ul>
-<p>Suppose the feature space is <span class="math inline">\quad \mathbb{X} = \{L,R\}</span></p>
+<p>::: {.fragment .custom .fadein-gray} Suppose the feature space is <span class="math inline">\quad \mathbb{X} = \{L,R\}</span></p>
 <p>Recursive partitioning simply does the following:</p>
 <p><span class="math display">\begin{align*}
     \pi(S)= \begin{cases}
@@ -433,6 +445,7 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
     \end{cases}
 \end{align*}</span></p>
 <p>If we condition on <span class="math inline">\bar{Y}_L -\bar{Y}_R &gt;c</span>, we expect bias.</p>
+<p>:::</p>
 </section>
 <section id="limitations-of-cart-1" class="slide level2">
 <h2>Limitations of CART</h2>
@@ -546,19 +559,38 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <section id="the-honest-criterion" class="slide level2">
 <h2>The Honest Criterion</h2>
 <p><span class="math display">\begin{align*}
-        \text{MSE}_{\mu}(S^{te},S^{est},\Pi) &amp;= \frac{1}{\#(S^{te})}\sum\limits_{i \in S^{te}}\left[(Y_i - \hat{\mu}(X_i;S^{est},\Pi))^2-Y_i^2\right]\\
+        \text{MSE}_{\mu}(\underbrace{S^{te}}_\text{test sample},\underbrace{S^{est}}_\text{estimation sample},\Pi) &amp;= \frac{1}{\#(S^{te})}\sum\limits_{i \in S^{te}}\left[(Y_i - \hat{\mu}(X_i;S^{est},\Pi))^2-Y_i^2\right]
+\end{align*}</span></p>
+<div style="margin-bottom: 0.4em;">
+
+</div>
+<p><span class="math display">\begin{align*}
         \text{EMSE}_\mu &amp;= \mathbb{E}_{S^{te},S^{est}}\left[\text{MSE}_\mu(S^{te},S^{est},\Pi)\right]
 \end{align*}</span></p>
-<p>Then our goal is to find <span class="math inline">\pi</span> that maximizes the <strong>Honest Criterion</strong>: <span class="math display">\begin{equation*}
-        Q^H(\pi) = -\mathbb{E}_{S^{te},S^{est},S^{tr}}\biggl[MSE_\mu\bigl(S^{te},S^{est},\pi(S^{tr})\bigr)\biggr]
+<div style="margin-bottom: 0.4em;">
+
+</div>
+<p>Then, our goal is to find <span class="math inline">\pi</span> that would maximize the <strong>Honest Criterion</strong>: <span class="math display">\begin{equation*}
+        -\mathbb{E}_{S^{te},S^{est},S^{tr}}\biggl[MSE_\mu\bigl(S^{te},S^{est},\pi(S^{tr})\bigr)\biggr]
 \end{equation*}</span></p>
+<ul>
+<li><span class="math inline">S^{te}</span> : We take expectation over the test set</li>
+<li><span class="math inline">S^{tr}</span> : Tree is built out of the training set</li>
+<li><span class="math inline">S^{est}</span> : <span class="math inline">\hat{\mu}</span> is computed in the estimation set</li>
+</ul>
 </section>
 <section id="the-honest-target" class="slide level2">
 <h2>The Honest Target</h2>
 <ul>
-<li>Given <span class="math inline">\Pi</span>, we can expand <span class="math inline">EMSE_\mu(\Pi)</span> : <span class="math display">\begin{equation*}
-          -\text{EMSE}_\mu=\mathbb{E}_{X_i}\left[\mu^2(X_i;\Pi)\right] - \mathbb{E}_{S^{est},X_i}\biggl[\mathbb{V}\bigl(\hat{\mu^2}(X_i;S^{est},\Pi)\bigr)\biggr]
-  \end{equation*}</span></li>
+<li>Given <span class="math inline">\Pi</span>, we can expand <span class="math inline">EMSE_\mu(\Pi)</span> :</li>
+</ul>
+<p><span class="math display">\begin{align*}
+-\text{EMSE}_\mu(\Pi) &amp;=
+        -\mathbb{E}_{(Y_i,X_i),S^{est}}\left[(Y_i-\mu(X_i;\Pi))^2 - Y_i^2\right] \\
+        &amp;\quad-\mathbb{E}_{X_i,S^{est}}\left[(\hat{\mu}(X_i;S^{est},\Pi)-\mu(X_i;\Pi))^2\right]\\
+        &amp;\quad= \mathbb{E}_{X_i}\left[\mu^2(X_i;\Pi)\right] - \mathbb{E}_{S^{est},X_i}\left[\mathbb{V}(\hat{\mu}(X_i;S^{est},\Pi))\right]
+\end{align*}</span></p>
+<ul>
 <li>How can we estimate each of these terms using <span class="math inline">\quad S^{tr}\quad</span> and <span class="math inline">\quad N^{est}</span>?</li>
 </ul>
 </section>
@@ -599,8 +631,8 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
         \end{aligned}
 \end{align*}</span></p>
 </section>
-<section id="cart-vs-honest-1" class="slide level2">
-<h2>CART vs Honest</h2>
+<section id="comparison-to-cart" class="slide level2">
+<h2>Comparison to CART</h2>
 <h3 id="cart-target">CART Target</h3>
 <p><span class="math display">\begin{equation*}
             -\text{MSE}_{\mu}(S^{tr},S^{tr},\Pi) = \frac{1}{N^{tr}} \sum\limits_{i \in S^{tr}}\hat{\mu^2}(X_i;S^{tr},\Pi)
@@ -609,12 +641,12 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <p><span class="math display">\begin{equation*}
         \begin{aligned}
         -\widehat{\text{EMSE}_\mu}(S^{tr},N^{est},\Pi) =\qquad \qquad \qquad \qquad \qquad \qquad \qquad \qquad
-        \\    \frac{1}{N^{tr}} \sum\limits_{i \in S^{tr}}\hat{\mu^2}(X_i;S^{tr},\Pi)-\left(\frac{1}{N^{tr}}+\frac{1}{N^{est}}\right)\cdot\sum\limits_{l \in \Pi}S^2_{S^{tr}}(l(x;\Pi))
+        \\    \frac{1}{N^{tr}} \sum\limits_{i \in S^{tr}}\hat{\mu^2}(X_i;S^{tr},\Pi)-{\color{blue}\left(\frac{1}{N^{tr}}+\frac{1}{N^{est}}\right)\cdot\sum\limits_{l \in \Pi}S^2_{S^{tr}}(l(x;\Pi))}
         \end{aligned}
 \end{equation*}</span></p>
 </section>
-<section id="cart-vs-honest-2" class="slide level2">
-<h2>CART vs Honest</h2>
+<section id="comparison-to-cart-1" class="slide level2">
+<h2>Comparison to CART</h2>
 <h3 id="pros-and-cons-of-honest">Pros and Cons of Honest</h3>
 <ul>
 <li>Pro:
@@ -1336,190 +1368,172 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
     </script>
 
     <script id="quarto-html-after-body" type="application/javascript">
-    window.document.addEventListener("DOMContentLoaded", function (event) {
-      const toggleBodyColorMode = (bsSheetEl) => {
-        const mode = bsSheetEl.getAttribute("data-mode");
-        const bodyEl = window.document.querySelector("body");
-        if (mode === "dark") {
-          bodyEl.classList.add("quarto-dark");
-          bodyEl.classList.remove("quarto-light");
-        } else {
-          bodyEl.classList.add("quarto-light");
-          bodyEl.classList.remove("quarto-dark");
-        }
-      }
-      const toggleBodyColorPrimary = () => {
-        const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
-        if (bsSheetEl) {
-          toggleBodyColorMode(bsSheetEl);
-        }
-      }
-      toggleBodyColorPrimary();  
-      const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
-      tabsets.forEach(function(tabset) {
-        const tabby = new Tabby('#' + tabset.id);
-      });
-      const isCodeAnnotation = (el) => {
-        for (const clz of el.classList) {
-          if (clz.startsWith('code-annotation-')) {                     
-            return true;
-          }
-        }
-        return false;
-      }
-      const onCopySuccess = function(e) {
-        // button target
-        const button = e.trigger;
-        // don't keep focus
-        button.blur();
-        // flash "checked"
-        button.classList.add('code-copy-button-checked');
-        var currentTitle = button.getAttribute("title");
-        button.setAttribute("title", "Copied!");
-        let tooltip;
-        if (window.bootstrap) {
-          button.setAttribute("data-bs-toggle", "tooltip");
-          button.setAttribute("data-bs-placement", "left");
-          button.setAttribute("data-bs-title", "Copied!");
-          tooltip = new bootstrap.Tooltip(button, 
-            { trigger: "manual", 
-              customClass: "code-copy-button-tooltip",
-              offset: [0, -8]});
-          tooltip.show();    
-        }
-        setTimeout(function() {
-          if (tooltip) {
-            tooltip.hide();
-            button.removeAttribute("data-bs-title");
-            button.removeAttribute("data-bs-toggle");
-            button.removeAttribute("data-bs-placement");
-          }
-          button.setAttribute("title", currentTitle);
-          button.classList.remove('code-copy-button-checked');
-        }, 1000);
-        // clear code selection
-        e.clearSelection();
-      }
-      const getTextToCopy = function(trigger) {
-          const codeEl = trigger.previousElementSibling.cloneNode(true);
-          for (const childEl of codeEl.children) {
-            if (isCodeAnnotation(childEl)) {
-              childEl.remove();
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
             }
           }
-          return codeEl.innerText;
-      }
-      const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
-        text: getTextToCopy
-      });
-      clipboard.on('success', onCopySuccess);
-      if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-        const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
-          text: getTextToCopy,
-          container: window.document.getElementById('quarto-embedded-source-code-modal')
-        });
-        clipboardModal.on('success', onCopySuccess);
-      }
-        var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-        var mailtoRegex = new RegExp(/^mailto:/);
-          var filterRegex = new RegExp('/' + window.location.host + '/');
-        var isInternal = (href) => {
-            return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          return false;
         }
-        // Inspect non-navigation links and adorn them if external
-     	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
-        for (var i=0; i<links.length; i++) {
-          const link = links[i];
-          if (!isInternal(link.href)) {
-            // undo the damage that might have been done by quarto-nav.js in the case of
-            // links that we want to consider external
-            if (link.dataset.originalHref !== undefined) {
-              link.href = link.dataset.originalHref;
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
             }
-          }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
         }
-      function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
-        const config = {
-          allowHTML: true,
-          maxWidth: 500,
-          delay: 100,
-          arrow: false,
-          appendTo: function(el) {
-              return el.closest('section.slide') || el.parentElement;
-          },
-          interactive: true,
-          interactiveBorder: 10,
-          theme: 'light-border',
-          placement: 'bottom-start',
-        };
-        if (contentFn) {
-          config.content = contentFn;
-        }
-        if (onTriggerFn) {
-          config.onTrigger = onTriggerFn;
-        }
-        if (onUntriggerFn) {
-          config.onUntrigger = onUntriggerFn;
-        }
-          config['offset'] = [0,0];
-          config['maxWidth'] = 700;
-        window.tippy(el, config); 
-      }
-      const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
-      for (var i=0; i<noterefs.length; i++) {
-        const ref = noterefs[i];
-        tippyHover(ref, function() {
-          // use id or data attribute instead here
-          let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
-          try { href = new URL(href).hash; } catch {}
-          const id = href.replace(/^#\/?/, "");
-          const note = window.document.getElementById(id);
-          if (note) {
-            return note.innerHTML;
-          } else {
-            return "";
-          }
-        });
-      }
-      const findCites = (el) => {
-        const parentEl = el.parentElement;
-        if (parentEl) {
-          const cites = parentEl.dataset.cites;
-          if (cites) {
-            return {
-              el,
-              cites: cites.split(' ')
-            };
-          } else {
-            return findCites(el.parentElement)
-          }
-        } else {
-          return undefined;
-        }
-      };
-      var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
-      for (var i=0; i<bibliorefs.length; i++) {
-        const ref = bibliorefs[i];
-        const citeInfo = findCites(ref);
-        if (citeInfo) {
-          tippyHover(citeInfo.el, function() {
-            var popup = window.document.createElement('div');
-            citeInfo.cites.forEach(function(cite) {
-              var citeDiv = window.document.createElement('div');
-              citeDiv.classList.add('hanging-indent');
-              citeDiv.classList.add('csl-entry');
-              var biblioDiv = window.document.getElementById('ref-' + cite);
-              if (biblioDiv) {
-                citeDiv.innerHTML = biblioDiv.innerHTML;
+        const getTextToCopy = function(trigger) {
+            const codeEl = trigger.previousElementSibling.cloneNode(true);
+            for (const childEl of codeEl.children) {
+              if (isCodeAnnotation(childEl)) {
+                childEl.remove();
               }
-              popup.appendChild(citeDiv);
-            });
-            return popup.innerHTML;
+            }
+            return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
           });
         }
-      }
-    });
-    </script>
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
     <!--
     # MIT License
     #

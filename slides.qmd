@@ -16,7 +16,7 @@ Research Question:
 
 Does a smile in your online profile help your online micro-borrowing?(Athey et al, 2022 <small>NBER WP</small>)
 
-::: {.fragment}
+::: {.fragment .custom .fadein-gray} 
 * $W_i \in \{0,1\}$ : Your treatment status
 
 <div style="margin-bottom: 0.8em;"></div>
@@ -133,15 +133,18 @@ $\rightarrow$ can maybe help us set up models and hypotheses!
 :::: {.panel-tabset}
 
 
-### Trees
+### Trees (1)
 
-::::{ .columns}
 
-:::{.column width="60%"}
+* Trees recursively partition the covariate space so that MSE decreases each time we add a partition.
 
-* Trees recursively partition the covariate space so that going down to each node, the
-variance of the $y$ value in the subset is low and $y$’s are better predicted.
+![Figure from Beaulac and Rosenthal(2019)](figures/decision_tree_illustration.png)
 
+### Trees (2)
+
+* Trees recursively partition the covariate space so that MSE decreases each time we add a partition.
+
+0. Split the data into $S^{tr}$(training) and $S^{te}$(test).
 
 1. Choose $X_i$ and cutoff $k$ and minimize
 
@@ -149,16 +152,10 @@ $$
 \sum_{i \in L}(y_i-\overline{y}_L)^2 +\sum_{i \in R}(y_i-\overline{y}_R)^2
 $$
 
-2. $\hat{y}(\text{leaf}) = \overline{y}_{(\text{leaf})} \quad (\text{i.e., sample mean})$
+2. $\hat{y}(\text{leaf}) = \overline{y}_{(\text{leaf})} \quad$ (i.e. sample mean)
 
-:::
+3. Compute the model performance in $S^{te}$.
 
-:::{.column width="40%"}
-![Figure from Beaulac and Rosenthal(2019)](figures/decision_tree_illustration.png)
-
-:::
-
-::::
 
 ### Code
 :::: {.columns}
@@ -200,6 +197,8 @@ ggplot(kyphosis, aes(x = Start, y = Age)) +
     Sample mean within a leaf is not unbiased, because model building and estimation is done jointly.
     
     $\rightarrow$ **Honest Algorithm**
+    
+    + We compute the sample mean in $S^{est}$.
 :::
 
 :::
@@ -219,26 +218,25 @@ ggplot(kyphosis, aes(x = Start, y = Age)) +
 ### CART
 
 $$ 
-\hat{Y}_{i,C} \bigl(S^{tr}, \Pi_C(S^{tr})) = \sum_{\mathcal{l} \in \Pi(S^{tr})} \hat{\mu_\mathcal{l}} (x; S^{\color{red} tr}, \Pi_C(S^{tr})) 
+\hat{Y_{i,c}}(\underbrace{S^{tr}}_{\text{training sample}},\underbrace{\pi_C(S^{tr})}_{\text{splitting for CART}})=\displaystyle\sum\limits_{l \in \pi_C(S^{tr})}\underbrace{\hat{\mu_l}(S^{tr},\pi_C(S^{tr}))}_{\text{within leaf estimate}}\mathbf{1}_{l}(x)
 $$
 
 ### Honest
 
 $$
-\hat{Y}_{i,H} \bigl(S^{tr}, \Pi_H(S^{tr})) = \sum_{\mathcal{l} \in \Pi(S^{tr})} \hat{\mu_\mathcal{l}} (x; S^{\color{red} est}, \Pi_H(S^{tr})) 
+\hat{Y_{i,H}}(\underbrace{{S^{\color{red} est}}}_{\text{estimation sample}},\underbrace{\pi_H(S^{tr})}_{\text{splitting for Honest}})=\displaystyle\sum\limits_{l \in \pi_H(S^{tr})}\hat{\mu_l}({S^{\color{red} est}},\pi_H(S^{tr}))\mathbf{1}_{l}(x)
 $$
 
-where 
-$$\hat{\mu}_\mathcal{l}(x; S, \Pi) = \frac{1}{\#(i \in S: X_i \in \mathcal{l}(x;\Pi))}\sum_{i\in S: X_i \in \mathcal{l}(x;\Pi)} Y_i
-$$
+- where $\hat{\mu_l}(S,\Pi)=\frac{1}{\#(i \in S :X_i \in l)}\sum\limits_{i \in S: X_i \in l}Y_i$
+- Honest means we are using two samples, one for splitting and one for within leaf estimating 
 
 ## Limitations of CART
+- We cannot simply use CART to estimate HTE.
+    + Potential bias in the leaf estimates
+    + does not consider variance in tree splitting
 
-- Potential bias in the leaf estimates
-- does not consider variance in tree splitting
 
-
- 
+ ::: {.fragment .custom .fadein-gray}
  Suppose the feature space is $\quad \mathbb{X} = \{L,R\}$
 
 Recursive partitioning simply does the following:
@@ -251,6 +249,8 @@ Recursive partitioning simply does the following:
 \end{align*}
 
 If we condition on $\bar{Y}_L -\bar{Y}_R >c$, we expect bias.
+
+:::
 
 ## Limitations of CART
 ### Example
@@ -376,21 +376,37 @@ ggplot(kyphosis, aes(x = Start, y = Age)) +
 ## The Honest Criterion
 
 \begin{align*}
-        \text{MSE}_{\mu}(S^{te},S^{est},\Pi) &= \frac{1}{\#(S^{te})}\sum\limits_{i \in S^{te}}\left[(Y_i - \hat{\mu}(X_i;S^{est},\Pi))^2-Y_i^2\right]\\
+        \text{MSE}_{\mu}(\underbrace{S^{te}}_\text{test sample},\underbrace{S^{est}}_\text{estimation sample},\Pi) &= \frac{1}{\#(S^{te})}\sum\limits_{i \in S^{te}}\left[(Y_i - \hat{\mu}(X_i;S^{est},\Pi))^2-Y_i^2\right]
+\end{align*}
+
+<div style="margin-bottom: 0.4em;"></div>
+
+\begin{align*}
         \text{EMSE}_\mu &= \mathbb{E}_{S^{te},S^{est}}\left[\text{MSE}_\mu(S^{te},S^{est},\Pi)\right]
 \end{align*}
 
-Then our goal is to find $\pi$ that maximizes the **Honest Criterion**:
+<div style="margin-bottom: 0.4em;"></div>
+
+Then, our goal is to find $\pi$ that would maximize the **Honest Criterion**:
 \begin{equation*}
-        Q^H(\pi) = -\mathbb{E}_{S^{te},S^{est},S^{tr}}\biggl[MSE_\mu\bigl(S^{te},S^{est},\pi(S^{tr})\bigr)\biggr]
+        -\mathbb{E}_{S^{te},S^{est},S^{tr}}\biggl[MSE_\mu\bigl(S^{te},S^{est},\pi(S^{tr})\bigr)\biggr]
 \end{equation*}
+
+- $S^{te}$ : We take expectation over the test set
+- $S^{tr}$ : Tree is built out of the training set
+- $S^{est}$ : $\hat{\mu}$ is computed in the estimation set
 
 
 ## The Honest Target
 - Given $\Pi$, we can expand $EMSE_\mu(\Pi)$ :
-    \begin{equation*}
-            -\text{EMSE}_\mu=\mathbb{E}_{X_i}\left[\mu^2(X_i;\Pi)\right] - \mathbb{E}_{S^{est},X_i}\biggl[\mathbb{V}\bigl(\hat{\mu^2}(X_i;S^{est},\Pi)\bigr)\biggr]
-    \end{equation*}
+
+\begin{align*}
+-\text{EMSE}_\mu(\Pi) &= 
+        -\mathbb{E}_{(Y_i,X_i),S^{est}}\left[(Y_i-\mu(X_i;\Pi))^2 - Y_i^2\right] \\ 
+        &\quad-\mathbb{E}_{X_i,S^{est}}\left[(\hat{\mu}(X_i;S^{est},\Pi)-\mu(X_i;\Pi))^2\right]\\
+        &\quad= \mathbb{E}_{X_i}\left[\mu^2(X_i;\Pi)\right] - \mathbb{E}_{S^{est},X_i}\left[\mathbb{V}(\hat{\mu}(X_i;S^{est},\Pi))\right]
+\end{align*}
+
 - How can we estimate each of these terms using $\quad S^{tr}\quad$ and $\quad N^{est}$?
 
 ## Honest Target: Estimation
@@ -439,7 +455,7 @@ The two terms combined, we obtain an unbiased estimator for honest target:
 
 
 
-## CART vs Honest
+## Comparison to CART
 
 ### CART Target
 
@@ -452,11 +468,11 @@ The two terms combined, we obtain an unbiased estimator for honest target:
 \begin{equation*}
         \begin{aligned}
         -\widehat{\text{EMSE}_\mu}(S^{tr},N^{est},\Pi) =\qquad \qquad \qquad \qquad \qquad \qquad \qquad \qquad 
-        \\    \frac{1}{N^{tr}} \sum\limits_{i \in S^{tr}}\hat{\mu^2}(X_i;S^{tr},\Pi)-\left(\frac{1}{N^{tr}}+\frac{1}{N^{est}}\right)\cdot\sum\limits_{l \in \Pi}S^2_{S^{tr}}(l(x;\Pi))
+        \\    \frac{1}{N^{tr}} \sum\limits_{i \in S^{tr}}\hat{\mu^2}(X_i;S^{tr},\Pi)-{\color{blue}\left(\frac{1}{N^{tr}}+\frac{1}{N^{est}}\right)\cdot\sum\limits_{l \in \Pi}S^2_{S^{tr}}(l(x;\Pi))}
         \end{aligned}
 \end{equation*}
 
-## CART vs Honest
+## Comparison to CART
 
 ### Pros and Cons of Honest
 - Pro: 
