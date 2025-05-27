@@ -95,7 +95,7 @@
     code span.vs { color: #9ecbff; } /* VerbatimString */
     code span.wa { color: #ff5555; } /* Warning */
   </style>
-  <link rel="stylesheet" href="slides_files/libs/revealjs/dist/theme/quarto-c62d3fccb7eb8a08287c3fc504beacbc.css">
+  <link rel="stylesheet" href="slides_files/libs/revealjs/dist/theme/quarto-61b4122ba65504f07786f045eacd5a87.css">
   <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
  var mathElements = document.getElementsByClassName("math");
@@ -291,33 +291,30 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <h2>Key concepts in ML</h2>
 <p>In terms of prediction, OLS(<span class="math inline">\mathrm{y}=X'\beta +\varepsilon</span>) is not good enough.</p>
 <div class="fragment custom fadein-gray">
-<ol start="2" type="1">
-<li>Bias-Variance tradeoff in Prediction
-<ul>
-<li><p>Let <span class="math inline">y=f(x) +\varepsilon</span> be the true DGP and <span class="math inline">\hat{f}</span> be our fitted model.</p></li>
-<li><p>Then, for a new data point <span class="math inline">x</span>, <span class="math display">
-\mathbb{E}\bigl[\bigl(f(x)+\varepsilon-\hat{f}(x)\bigr)^2\bigr] = \mathbb{E}[f-\hat{f}]^2 + \mathbb{V}(\hat{f}) + \mathbb{V}(\varepsilon)
-</span></p></li>
-<li><p>The unbiased predictor is not usually the minimum-error predictor, but most models/estimations including OLS focus on unbiasedness!</p></li>
-</ul></li>
+<ol type="1">
+<li><p>Not all DGPs are linear.</p></li>
+<li><p>Bias-Variance tradeoff in Prediction</p></li>
 </ol>
-<div class="fragment custom fadein-gray">
-<p>“Learning” means that the data selects the right parameters/hyperparameters, not the researcher.</p>
-<p><span class="math inline">\rightarrow</span> can maybe help us set up models and hypotheses!</p>
+<p><span class="math display">\begin{align*}
+    \text{Prediction Error} &amp;=\mathbb{E}\bigl[\bigl(f(x)+\varepsilon-\hat{f}(x)\bigr)^2\bigr]\\ &amp;
+    = \underbrace{\mathbb{E}[f-\hat{f}]^2}_{\text{bias}} + \underbrace{\mathbb{V}(\hat{f})}_{\text{variance}} + \mathbb{V}(\varepsilon)
+\end{align*}</span></p>
+<p>The unbiased predictor is not usually the minimum-error predictor, but most models/estimations including OLS focus on unbiasedness!</p>
+<div style="margin-bottom: 0.6em;">
+
 </div>
+<p><strong>Why important?</strong> Heterogeneity in TE can be nonlinear wrt <span class="math inline">X</span>.</p>
 </div>
 </section>
-<section id="classification-and-regression-treescart" class="slide level2">
-<h2>Classification and Regression Trees(CART)</h2>
+<section id="building-a-tree" class="slide level2">
+<h2>Building a Tree</h2>
 <div class="panel-tabset">
-<ul id="tabset-1" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-1-1">Trees (1)</a></li><li><a href="#tabset-1-2">Trees (2)</a></li><li><a href="#tabset-1-3">Trees (3)</a></li></ul>
+<ul id="tabset-1" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-1-1">CART</a></li><li><a href="#tabset-1-2">Example</a></li><li><a href="#tabset-1-3">Criterion</a></li></ul>
 <div class="tab-content">
 <div id="tabset-1-1">
-<ul>
-<li>Trees recursively partition the covariate space so that MSE decreases each time we add a partition.</li>
-</ul>
+<p><strong>Classification and Regression Trees</strong> recursively divide the covariate space into two so that MSE decreases each time we add a partition. In the figure below, we have a partition with 5 leaves.</p>
 <div class="columns">
-<div class="column" style="width:70%;">
+<div class="column" style="width:60%;">
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -347,8 +344,13 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 </div>
 </div>
 </div>
-</div><div class="column" style="width:30%;">
-
+</div><div class="column" style="width:40%;">
+<h4 id="steps">Steps</h4>
+<ol type="1">
+<li>Choose <span class="math inline">X_1</span> or <span class="math inline">X_2</span>.</li>
+<li>Choose the cutoff for dividing.</li>
+<li>Repeat these steps.</li>
+</ol>
 </div></div>
 </div>
 <div id="tabset-1-2">
@@ -363,20 +365,23 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 </div>
 </div>
 <div id="tabset-1-3">
-<ul>
-<li>Trees recursively partition the covariate space so that MSE decreases each time we add a partition.</li>
-</ul>
+<p>For regression trees, the criterion for choosing covariate and a cutoff pair is the MSE.</p>
 <ol type="1">
 <li><p>Split the data into <span class="math inline">S^{tr}</span>(training) and <span class="math inline">S^{te}</span>(test).</p></li>
-<li><p>Choose <span class="math inline">X_i</span> and cutoff <span class="math inline">k</span> and minimize MSE:</p></li>
+<li><p>Within <span class="math inline">S^{tr}</span>, choose <span class="math inline">X_i</span> and a cutoff <span class="math inline">k</span> that minimizes MSE:</p></li>
 </ol>
 <p><span class="math display">
-\sum_{i \in L}(y_i-\overline{y}_L)^2 +\sum_{i \in R}(y_i-\overline{y}_R)^2
+\underbrace{\sum_{i \in L}(y_i-\overline{y}_L)^2}_{\text{left-side MSE}} + \underbrace{\sum_{i \in R}(y_i-\overline{y}_R)^2}_{\text{right-side MSE}}
 </span></p>
 <ol start="3" type="1">
-<li><p>Repeat this process of</p></li>
-<li><p><span class="math inline">\hat{y}(\text{leaf}) = \overline{y}_{(\text{leaf})} \quad</span> (i.e.&nbsp;sample mean)</p></li>
-<li><p>Evaluate the prediction performance in <span class="math inline">S^{te}</span>.</p></li>
+<li><p>Repeat this process.</p></li>
+<li><p>Our prediction within each leaf is the sample mean within each leaf:</p></li>
+</ol>
+<p><span class="math display">
+\hat{y}(\text{leaf}) = \overline{y}_{(\text{leaf})}
+</span></p>
+<ol start="5" type="1">
+<li>Evaluate the prediction performance in <span class="math inline">S^{te}</span>.</li>
 </ol>
 </div>
 </div>
@@ -480,18 +485,15 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 </section>
 <section id="cart-vs-honest" class="slide level2">
 <h2>CART vs Honest</h2>
-<h3 id="cart">CART</h3>
+<p>Honest Estimation uses two different samples : <span class="math inline">S^{tr}</span> for splitting and <span class="math inline">S^{est}</span> for estimation.</p>
+<h3 id="cart-1">CART</h3>
 <p><span class="math display">
-\hat{Y_{i,c}}(\underbrace{S^{tr}}_{\text{training sample}},\underbrace{\pi_C(S^{tr})}_{\text{splitting for CART}})=\displaystyle\sum\limits_{l \in \pi_C(S^{tr})}\underbrace{\hat{\mu_l}(S^{tr},\pi_C(S^{tr}))}_{\text{within leaf estimate}}\mathbf{1}_{l}(x)
+\hat{\mu}(x;S^{tr},\pi(S^{tr}))=\frac{1}{\#(i \in S^{tr} : X_i \in \textit{l}(x;\pi(S^{tr})))}\sum\limits_{i\in S^{tr}:X_i \in \textit{l}(x;\pi(S^{tr}))}Y_i
 </span></p>
 <h3 id="honest">Honest</h3>
 <p><span class="math display">
-\hat{Y_{i,H}}(\underbrace{{S^{\color{red} est}}}_{\text{estimation sample}},\underbrace{\pi_H(S^{tr})}_{\text{splitting for Honest}})=\displaystyle\sum\limits_{l \in \pi_H(S^{tr})}\hat{\mu_l}({S^{\color{red} est}},\pi_H(S^{tr}))\mathbf{1}_{l}(x)
+\hat{\mu}(x;S^{est},\pi(S^{tr}))=\frac{1}{\#(i \in S^{est} : X_i \in \textit{l}(x;\pi(S^{tr})))}\sum\limits_{i\in S^{est}:X_i \in \textit{l}(x;\pi(S^{tr}))}Y_i
 </span></p>
-<ul>
-<li>where <span class="math inline">\hat{\mu_l}(S,\Pi)=\frac{1}{\#(i \in S :X_i \in l)}\sum\limits_{i \in S: X_i \in l}Y_i</span></li>
-<li>Honest means we are using two samples, one for splitting and one for within leaf estimating</li>
-</ul>
 </section>
 <section id="limitations-of-cart" class="slide level2">
 <h2>Limitations of CART</h2>
@@ -508,7 +510,7 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <p><span class="math display">\begin{align*}
     \pi(S)= \begin{cases}
     \quad \{ \{L,R \} \} &amp; \text{if} \quad \bar{Y}_L -\bar{Y}_R \leq c \\
-    \quad \{ \{L\}, \{R \} \} &amp; \text{if} \quad \bar{Y}_L -\bar{Y}_R &gt; c
+    \quad \{ \{L\}, \{R \} \} &amp; \text{ifx} \quad \bar{Y}_L -\bar{Y}_R &gt; c
     \end{cases}
 \end{align*}</span></p>
 <p>If we condition on <span class="math inline">\bar{Y}_L -\bar{Y}_R &gt;c</span>, we expect bias.</p>
@@ -516,7 +518,7 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 </section>
 <section id="limitations-of-cart-1" class="slide level2">
 <h2>Limitations of CART</h2>
-<h3 id="example">Example</h3>
+<h3 id="example-1">Example</h3>
 <div class="panel-tabset">
 <ul id="tabset-3" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-3-1">Training 1</a></li><li><a href="#tabset-3-2">Training 2</a></li><li><a href="#tabset-3-3">Estimation Set</a></li></ul>
 <div class="tab-content">
@@ -626,7 +628,7 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <section id="the-honest-criterion" class="slide level2">
 <h2>The Honest Criterion</h2>
 <p><span class="math display">\begin{align*}
-        \text{MSE}_{\mu}(\underbrace{S^{te}}_\text{test sample},\underbrace{S^{est}}_\text{estimation sample},\Pi) &amp;= \frac{1}{\#(S^{te})}\sum\limits_{i \in S^{te}}\left[(Y_i - \hat{\mu}(X_i;S^{est},\Pi))^2-Y_i^2\right]
+        \text{MSE}_{\mu}(\underbrace{S^{te}}_\text{test set},\underbrace{S^{est}}_\text{estimation set},\Pi) &amp;= \frac{1}{\#(S^{te})}\sum\limits_{i \in S^{te}}\left[(Y_i - \hat{\mu}(X_i;S^{\color{red} est},\Pi))^2{\color{blue} -Y_i^2}\right]
 \end{align*}</span></p>
 <div style="margin-bottom: 0.4em;">
 
@@ -749,7 +751,7 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <section id="cart-for-heterogeneous-treatment-effects" class="slide level2">
 <h2>CART For Heterogeneous Treatment Effects?</h2>
 <div class="panel-tabset">
-<ul id="tabset-5" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-5-1">Model</a></li><li><a href="#tabset-5-2">Criterion</a></li><li><a href="#tabset-5-3">Cross-Validation</a></li></ul>
+<ul id="tabset-5" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-5-1">Model</a></li><li><a href="#tabset-5-2">Criterion</a></li></ul>
 <div class="tab-content">
 <div id="tabset-5-1">
 <ol type="1">
@@ -770,24 +772,14 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <li>In-sample Goodness-of-fit function: <span style="color: red;">NOT FEASIBLE</span> <span class="math display">
       Q^{is}=-MSE=-\frac{1}{N}\sum_{i=1}^{N}(\tau_i-\hat{\tau}_i)^2
 </span></li>
-<li>Criterion: <span class="math inline">Q^{crit}=Q^{is}-\lambda\cdot\#|\Pi|</span></li>
-</ul></li>
-</ol>
-</div>
-<div id="tabset-5-3">
-<ol start="3" type="1">
-<li>Cross-validation approach with <span class="math inline">\mathcal{S}^{{\color{red} \text{te}}}</span>
-<ul>
-<li>Approach: cv on grid of complexity parameters. Select complexity parameter <span class="math inline">\lambda</span> with the highest out-of-sample goodness-of-fit <span class="math inline">{Q}^{\text{os}}</span>.</li>
-<li><span class="math inline">{Q}^{\text{os}}=-MSE</span></li>
 </ul></li>
 </ol>
 </div>
 </div>
 </div>
 </section>
-<section id="problems-with-using-cart-for-hte-and-its-replacement" class="slide level2">
-<h2>Problems with using CART for HTE and its replacement</h2>
+<section id="problems-with-using-cart-for-hte" class="slide level2">
+<h2>Problems with using CART for HTE</h2>
 <ul>
 <li><p>GOAL: Estimate within-leaf treatment effect</p></li>
 <li><p>HOW? maximize <span class="math inline">-MSE_{\tau}</span></p></li>
@@ -828,10 +820,10 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <h2>New Criterion for Honest Causal Tree</h2>
 <p>Given <span class="math inline">\Pi</span>,</p>
 <p><span class="math display">\begin{align*}
-        \text{MSE}_{\tau}(\mathcal{S^{{\color{red}\text{te}}}},\mathcal{S^{{\color{red}\text{est}}}}) &amp;\equiv \frac{1}{\text{N}^{\color{red}\text{te}}}\sum_{i\in \mathcal{S^{{\color{red}\text{te}}}}}(\tau_i-\hat{\tau}(X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi))^2 \notag \\
-        &amp;= \frac{1}{\text{N}^{\color{red}\text{te}}}\sum_{i\in \mathcal{S^{{\color{red}\text{te}}}}}(\tau_i^2-2\tau_i\cdot \hat{\tau}(X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi)+\hat{\tau}^2 (X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi)) \\
-        EMSE &amp;=\mathbb{E}_{\mathcal{S}^{\color{red}{te}}, \mathcal{S}^{\color{red}{est}}}[\sum_{i\in \mathcal{S}^{\color{red}{te}}}(\tau_i-\hat{\tau}(X_i;\mathcal{S}^{\color{red}est}))^2] \\
-        &amp;= \mathbb{V}_{\mathcal{S}^{\text{est}}, X_i}[\hat{\tau}(X_i; \mathcal{S}^{\text{est}},\Pi)]-\mathbb{E}_{X_i}[\tau^2(X_i;\Pi)]+\cancel{\mathbb{E}[\tau_i^2]}
+        \text{MSE}_{\tau}(\mathcal{S^{{\color{red}\text{te}}}},\mathcal{S^{{\color{red}\text{est}}}}) &amp;\equiv \frac{1}{\text{N}^{\color{red}\text{te}}}\sum_{i\in \mathcal{S^{{\color{red}\text{te}}}}}[(\tau_i-\hat{\tau}(X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi))^2 -\tau_i^2 ]\notag \\
+        &amp;= \frac{1}{\text{N}^{\color{red}\text{te}}}\sum_{i\in \mathcal{S^{{\color{red}\text{te}}}}}[-2\tau_i\cdot \hat{\tau}(X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi)+\hat{\tau}^2 (X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi)] \\
+        EMSE &amp;=\mathbb{E}_{\mathcal{S}^{\color{red}{te}}, \mathcal{S}^{\color{red}{est}}}[\sum_{i\in \mathcal{S}^{\color{red}{te}}}((\tau_i-\hat{\tau}(X_i;\mathcal{S}^{\color{red}est}))^2-\tau_i^2)] \\
+        &amp;= \mathbb{V}_{\mathcal{S}^{\text{est}}, X_i}[\hat{\tau}(X_i; \mathcal{S}^{\text{est}},\Pi)]-\mathbb{E}_{X_i}[\tau^2(X_i;\Pi)]
 \end{align*}</span></p>
 <ul>
 <li><p>Again, the last equality holds by the “honesty” that <span class="math inline">\mathcal{S}^{est}\perp \Pi</span></p></li>
@@ -848,19 +840,19 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
       -\biggl(\frac{2}{\text{N}^{\text{tr}}}\biggr)\sum_{\ell \in \Pi}\biggl(\frac{S^2_{\mathcal{S}^\text{tr}_\text{treat}}(\ell)}{p}+\frac{S^2_{\mathcal{S}^\text{tr}_\text{control}}(\ell)}{1-p}\biggr)
 \end{align*}</span> where <span class="math inline">p=N^\text{tr}_\text{treat}/N^\text{tr}</span></p></li>
 <li><p>Note that <span class="math inline">S^2</span>’s are the sample variances of <span style="color: blue;">mean estimates</span>, <span style="color: red;">NOT</span> the treatment effects.</p></li>
-<li><p>out-of-sample goodness-of-fit measure: <span class="math inline">\hat{EMSE}_\tau(\mathcal{S^{\text{tr, cv}}},\Pi)</span></p></li>
 </ul>
 </section>
 <section id="interpretation-of-the-criterion" class="slide level2">
 <h2>Interpretation of the Criterion</h2>
 <ul>
-<li>The first term <span style="color: blue;">rewards</span> high heterogeneity in treatment effects <span class="math display">\begin{align*}
-      \frac{1}{\text{N}^\text{tr}} \sum_{i\in\mathcal{S^\text{tr}}} \hat{\tau}^2(X_i;\mathcal{S}^{tr},\Pi)
-  \end{align*}</span></li>
-<li>The second term <span style="color: red;">penalizes</span> a partition that increases variance in leaf estimates (e.g.&nbsp;small leaves) <span class="math display">\begin{align*}
-           -\frac{2}{\text{N}^{\text{tr}}}\sum_{\ell \in \Pi}(\frac{S^2_{\mathcal{S}^\text{tr}_\text{treat}}(\ell)}{p}+\frac{S^2_{\mathcal{S}^\text{tr}_\text{control}}(\ell)}{1-p})
-      \end{align*}</span></li>
-<li>Two terms are NOT proportional (c.f. Terms in <span class="math inline">\hat{EMSE}_\mu</span> are proportional)</li>
+<li><p>The first term <span style="color: blue;">rewards</span> high heterogeneity in treatment effects</p>
+<p><span class="math display">\begin{align*}
+          \hat{\mathbb{E}}_{X_i}[\tau^2(X_i;\Pi)]=\frac{1}{\text{N}^\text{tr}} \sum_{i\in\mathcal{S^\text{tr}}} \hat{\tau}^2(X_i;\mathcal{S}^{tr},\Pi)
+  \end{align*}</span></p></li>
+<li><p>The second term <span style="color: red;">penalizes</span> a partition that increases variance in leaf estimates (e.g.&nbsp;small leaves) <span class="math display">\begin{align*}
+           -\hat{\mathbb{V}}_{\mathcal{S}^{est},X_i}[\hat{\tau}(X_i;\mathcal{S}^{est},\Pi)]
+           = -\frac{2}{\text{N}^{\text{tr}}}\sum_{\ell \in \Pi}(\frac{S^2_{\mathcal{S}^\text{tr}_\text{treat}}(\ell)}{p}+\frac{S^2_{\mathcal{S}^\text{tr}_\text{control}}(\ell)}{1-p})
+      \end{align*}</span></p></li>
 </ul>
 </section>
 <section id="sec-pro-con" class="slide level2">
@@ -892,9 +884,9 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <p><span class="math display">
     MSE_{\mu,W}(\mathcal{S}^{te},\mathcal{S}^{est},\Pi) \equiv
     \sum_{i\in\mathcal{S}^{te}}
-    ((Y_i^{\text{obs}}-
+    ((Y_i-
     \hat{\mu}_w({\color{red}W_i},X_i;\mathcal{S}^{est},\Pi))^2
-    -{Y_i^{\text{obs}}}^2)
+    -{Y_i}^2)
 </span></p>
 <ul>
 <li><p>Pros: MSE is feasible (No <span class="math inline">\tau_i</span> terms)</p></li>
@@ -906,7 +898,10 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <h2>Alternative Methods for Constructing Trees</h2>
 <h3 id="squared-t-statistic-trees-ts">(2) Squared T-statistic Trees (TS)</h3>
 <ul>
-<li>Split Rule: Test <span class="math inline">H_0</span>, the <span style="color: red;">CATE</span> is the same in the two potential leaves, with <span class="math inline">T^2</span></li>
+<li>Split Rule: split if <span class="math inline">({\color{red}\overline{\tau}_L-\overline{\tau}_R})^2</span> is sufficiently large
+<ul>
+<li><strong>similar to two-sample t test</strong></li>
+</ul></li>
 </ul>
 <p><span class="math display">\begin{align*}
     T^2 \equiv N \cdot
@@ -957,21 +952,25 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 </div>
 <div id="tabset-6-2">
 <p><span class="math display">
-    Y_i(w) = \eta(X_i) + \frac{1}{2}\cdot (2w-1) \cdot \kappa (X_i) + \epsilon_i
+    Y_i(w) = \eta(X_i) + \frac{1}{2}\cdot (2w-1) \cdot {\color{red} \kappa (X_i)} + \epsilon_i
 </span></p>
-<p><span class="math inline">\text{where} \quad \epsilon_i \sim N(0,.01), X_i \sim N(0,1) \quad \text{with} \quad \epsilon_i\perp X_i \quad \text{and }X_i\perp X_j</span></p>
+<ul>
+<li><span class="math inline">\epsilon_i \sim N(0,.01)</span></li>
+<li><span class="math inline">X_i \sim N(0,1)</span></li>
+<li><span class="math inline">\epsilon_i\perp X_i \quad \text{and}\quad X_i\perp X_j</span></li>
+</ul>
 </div>
 <div id="tabset-6-3">
 <p>We have three different setups:</p>
 <ol type="1">
-<li><span class="math inline">K=2; \quad \eta(x) = \frac{1}{2}x_1 + x_2; \quad \kappa(x) = \frac{1}{2}x_1</span></li>
-<li><span class="math inline">K=10; \quad \eta(x) = \frac{1}{2}(x_1+x_2) + \sum_{k=3}^6 x_k; \quad \kappa(x) = \frac{2}{1}\mathbb{I}\{x_k &gt;0\}\cdot x_k</span></li>
-<li><span class="math inline">K=20; \quad \eta(x) = \frac{1}{2}\sum_{k=1}^4 x_k + \sum_{k=5}^8 x_k; \quad \kappa(x) = \mathbb{I}\{x_k&gt;0\} \cdot x_k</span> <br></li>
+<li><span class="math inline">K=2; \quad \kappa(x) = \frac{1}{2}x_1</span></li>
+<li><span class="math inline">K=10; \quad \kappa(x) = \sum_{k=1}^2 \mathbb{I}\{x_k &gt;0\}\cdot x_k</span></li>
+<li><span class="math inline">K=20; \quad \kappa(x) = \sum_{k=1}^4 \mathbb{I}\{x_k&gt;0\} \cdot x_k</span> <br></li>
 </ol>
 <ul>
-<li>Design 1: a simple model with two covariates. HTE is linear with <span class="math inline">x_1</span></li>
-<li>Design 2: six covariates and two that interacts with TE. HTE is non linear</li>
-<li>Design 3: eight covariates and four that interacts with TE. HTE is non linear</li>
+<li>Design 1: two covariates. HTE is linear.</li>
+<li>Design 2: six covariates. HTE is non linear</li>
+<li>Design 3: eight covariates. HTE is non linear</li>
 </ul>
 </div>
 </div>
@@ -981,9 +980,14 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <h2>Simulation Study: Results</h2>
 <h3 id="ct-h-vs-alternative-estimators">CT-H vs alternative estimators</h3>
 <div class="columns">
-<div class="column" style="width:40%;">
-<p><img data-src="figures/fig2.png"></p>
-</div><div class="column" style="width:60%;">
+<div class="column" style="width:60%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="figures/fig2.png" style="width:100.0%"></p>
+<figcaption>MSE divided by CT-H’s MSE</figcaption>
+</figure>
+</div>
+</div><div class="column" style="width:40%;">
 <ul>
 <li>CT-H:
 <ul>
@@ -999,40 +1003,39 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <li>Performs worst in all designs; splits based on outcome prediction</li>
 </ul></li>
 </ul>
-<div style="margin-bottom: 0.5em;">
-
-</div>
-<ul>
-<li>TS-H:
-<ul>
-<li>Strong in Design 1</li>
-<li>Underperforms in Designs 2 and 3 due to limitations of t-statistics in capturing nonlinear heterogeneity</li>
-</ul></li>
-</ul>
 </div></div>
 </section>
 <section id="sec-sim-study" class="slide level2">
 <h2>Simulation Study: Results</h2>
 <h3 id="adaptive-vs-honest-coverage-for-90-confidence-intervals">Adaptive vs Honest : Coverage for 90% confidence intervals</h3>
 <div class="columns">
-<div class="column" style="width:40%;">
+<div class="column" style="width:60%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
 <p><img data-src="figures/fig4.png"></p>
-</div><div class="column" style="width:60%;">
+<figcaption>Coverage of 90% confidence intervals</figcaption>
+</figure>
+</div>
+</div><div class="column" style="width:40%;">
 <ul>
 <li>Honest estimation achieves nominal 90% coverage in all designs, while adaptive methods often fall below</li>
 </ul>
-<p><br></p>
+<div style="margin-bottom: 0.5em;">
+
+</div>
 <ul>
 <li>The fit estimator has the highest adaptive coverage rates; it doesn’t focus on treatment effects</li>
 </ul>
-<p><br></p>
+<div style="margin-bottom: 0.5em;">
+
+</div>
 <ul>
 <li>Honest estimation sacrifices some goodness of fit for valid confidence intervals</li>
 </ul>
-</div></div>
 <p align="right">
 <a href="./#/sec-sim-app"><ins>More results</ins></a>
 </p>
+</div></div>
 <!-- ## Observational Studies with Unconfoundedness
 
 - Causal Trees can be applied to observational studies under the assumption of unconfoundedness (treatment is independent of potential outcomes given covariates).
@@ -1066,16 +1069,16 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <ul>
 <li>Different criterions can be used(fit, T-squared, etc.), but our baseline estimator(CT-H) performs the best in simulation.</li>
 </ul>
-<div style="margin-bottom: 0.5em;">
-
-</div>
-<ul>
-<li>Can be extended to observational studies!</li>
-</ul>
 </section>
 <section id="materials" class="slide level2">
 <h2>Materials</h2>
-<p>TBU</p>
+<div class="button-container">
+<pre><code>&lt;a href="https://example1.com"&gt;Link 1&lt;/a&gt;
+&lt;a href="https://example2.com"&gt;Link 2&lt;/a&gt;
+&lt;a href="https://example3.com"&gt;Link 3&lt;/a&gt;
+&lt;a href="https://example4.com"&gt;Link 4&lt;/a&gt;
+&lt;a href="https://example5.com"&gt;Link 5&lt;/a&gt;</code></pre>
+</div>
 </section></section>
 <section>
 <section id="appendix" class="title-slide slide level1 center">

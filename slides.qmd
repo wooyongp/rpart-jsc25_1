@@ -103,39 +103,35 @@ In terms of prediction, OLS($\mathrm{y}=X'\beta +\varepsilon$) is not good enoug
 
 ::: {.fragment .custom .fadein-gray}
 
+1. Not all DGPs are linear.
 
 2. Bias-Variance tradeoff in Prediction
-    * Let $y=f(x) +\varepsilon$ be the true DGP and $\hat{f}$ be our fitted model.
-    * Then, for a new data point $x$,
-    $$
-    \mathbb{E}\bigl[\bigl(f(x)+\varepsilon-\hat{f}(x)\bigr)^2\bigr] = \mathbb{E}[f-\hat{f}]^2 + \mathbb{V}(\hat{f}) + \mathbb{V}(\varepsilon)
-    $$
-    
-    * The unbiased predictor is not usually the minimum-error predictor, but most models/estimations including OLS focus on unbiasedness!
 
-::: {.fragment .custom .fadein-gray}
+\begin{align*}
+    \text{Prediction Error} &=\mathbb{E}\bigl[\bigl(f(x)+\varepsilon-\hat{f}(x)\bigr)^2\bigr]\\ &
+    = \underbrace{\mathbb{E}[f-\hat{f}]^2}_{\text{bias}} + \underbrace{\mathbb{V}(\hat{f})}_{\text{variance}} + \mathbb{V}(\varepsilon)
+\end{align*}
 
-"Learning" means that the data selects the right parameters/hyperparameters, not the researcher.
+The unbiased predictor is not usually the minimum-error predictor, but most models/estimations including OLS focus on unbiasedness!
 
-$\rightarrow$ can maybe help us set up models and hypotheses!
+<div style="margin-bottom: 0.6em;"></div>
+
+**Why important?** Heterogeneity in TE can be nonlinear wrt $X$.
 
 :::
 
-
-:::
-
-## Classification and Regression Trees(CART)
+## Building a Tree
 
 :::: {.panel-tabset}
 
 
-### Trees (1)
+### CART
 
-* Trees recursively partition the covariate space so that MSE decreases each time we add a partition.
+**Classification and Regression Trees** recursively divide the covariate space into two so that MSE decreases each time we add a partition. In the figure below, we have a partition with 5 leaves.
 
 ::::{.columns}
 
-:::{.column width="70%"}
+:::{.column width="60%"}
 
 ```{r}
 #| echo: true
@@ -164,34 +160,45 @@ ggplot(kyphosis, aes(x = Start, y = Age)) +
 :::
 
 
-:::{.column width="30%"}
+:::{.column width="40%"}
+
+#### Steps
+
+1. Choose $X_1$ or $X_2$.
+2. Choose the cutoff for dividing.
+3. Repeat these steps.
+
 
 :::
 
 ::::
 
-### Trees (2)
+### Example
 
 
 * Trees recursively partition the covariate space so that MSE decreases each time we add a partition.
 
 ![Figure from Beaulac and Rosenthal(2019)](figures/decision_tree_illustration.png)
 
-### Trees (3)
+### Criterion
 
-* Trees recursively partition the covariate space so that MSE decreases each time we add a partition.
+For regression trees, the criterion for choosing covariate and a cutoff pair is the MSE.
 
 1. Split the data into $S^{tr}$(training) and $S^{te}$(test).
 
-2. Choose $X_i$ and cutoff $k$ and minimize MSE:
+2. Within $S^{tr}$, choose $X_i$ and a cutoff $k$ that minimizes MSE:
 
 $$
-\sum_{i \in L}(y_i-\overline{y}_L)^2 +\sum_{i \in R}(y_i-\overline{y}_R)^2
+\underbrace{\sum_{i \in L}(y_i-\overline{y}_L)^2}_{\text{left-side MSE}} + \underbrace{\sum_{i \in R}(y_i-\overline{y}_R)^2}_{\text{right-side MSE}}
 $$
 
-3. Repeat this process of
+3. Repeat this process.
 
-4. $\hat{y}(\text{leaf}) = \overline{y}_{(\text{leaf})} \quad$ (i.e. sample mean)
+4. Our prediction within each leaf is the sample mean within each leaf:
+
+$$
+\hat{y}(\text{leaf}) = \overline{y}_{(\text{leaf})}
+$$
 
 5. Evaluate the prediction performance in $S^{te}$.
 
@@ -284,20 +291,21 @@ ggplot(df, aes(as.numeric(leaf))) +
 
 ## CART vs Honest
 
+Honest Estimation uses two different samples : $S^{tr}$ for splitting and $S^{est}$ for estimation.
+
 ### CART
 
 $$ 
-\hat{Y_{i,c}}(\underbrace{S^{tr}}_{\text{training sample}},\underbrace{\pi_C(S^{tr})}_{\text{splitting for CART}})=\displaystyle\sum\limits_{l \in \pi_C(S^{tr})}\underbrace{\hat{\mu_l}(S^{tr},\pi_C(S^{tr}))}_{\text{within leaf estimate}}\mathbf{1}_{l}(x)
+\hat{\mu}(x;S^{tr},\pi(S^{tr}))=\frac{1}{\#(i \in S^{tr} : X_i \in \textit{l}(x;\pi(S^{tr})))}\sum\limits_{i\in S^{tr}:X_i \in \textit{l}(x;\pi(S^{tr}))}Y_i 
 $$
 
 ### Honest
 
 $$
-\hat{Y_{i,H}}(\underbrace{{S^{\color{red} est}}}_{\text{estimation sample}},\underbrace{\pi_H(S^{tr})}_{\text{splitting for Honest}})=\displaystyle\sum\limits_{l \in \pi_H(S^{tr})}\hat{\mu_l}({S^{\color{red} est}},\pi_H(S^{tr}))\mathbf{1}_{l}(x)
+\hat{\mu}(x;S^{est},\pi(S^{tr}))=\frac{1}{\#(i \in S^{est} : X_i \in \textit{l}(x;\pi(S^{tr})))}\sum\limits_{i\in S^{est}:X_i \in \textit{l}(x;\pi(S^{tr}))}Y_i
 $$
 
-- where $\hat{\mu_l}(S,\Pi)=\frac{1}{\#(i \in S :X_i \in l)}\sum\limits_{i \in S: X_i \in l}Y_i$
-- Honest means we are using two samples, one for splitting and one for within leaf estimating 
+
 
 ## Limitations of CART
 - We cannot simply use CART to estimate HTE.
@@ -314,7 +322,7 @@ Recursive partitioning simply does the following:
 \begin{align*}
     \pi(S)= \begin{cases}
     \quad \{ \{L,R \} \} & \text{if} \quad \bar{Y}_L -\bar{Y}_R \leq c \\
-    \quad \{ \{L\}, \{R \} \} & \text{if} \quad \bar{Y}_L -\bar{Y}_R > c
+    \quad \{ \{L\}, \{R \} \} & \text{ifx} \quad \bar{Y}_L -\bar{Y}_R > c
     \end{cases}
 \end{align*}
 
@@ -446,7 +454,7 @@ ggplot(kyphosis, aes(x = Start, y = Age)) +
 ## The Honest Criterion
 
 \begin{align*}
-        \text{MSE}_{\mu}(\underbrace{S^{te}}_\text{test sample},\underbrace{S^{est}}_\text{estimation sample},\Pi) &= \frac{1}{\#(S^{te})}\sum\limits_{i \in S^{te}}\left[(Y_i - \hat{\mu}(X_i;S^{est},\Pi))^2-Y_i^2\right]
+        \text{MSE}_{\mu}(\underbrace{S^{te}}_\text{test set},\underbrace{S^{est}}_\text{estimation set},\Pi) &= \frac{1}{\#(S^{te})}\sum\limits_{i \in S^{te}}\left[(Y_i - \hat{\mu}(X_i;S^{\color{red} est},\Pi))^2{\color{blue} -Y_i^2}\right]
 \end{align*}
 
 <div style="margin-bottom: 0.4em;"></div>
@@ -595,16 +603,10 @@ $$
     $$
             Q^{is}=-MSE=-\frac{1}{N}\sum_{i=1}^{N}(\tau_i-\hat{\tau}_i)^2
     $$
-    - Criterion: $Q^{crit}=Q^{is}-\lambda\cdot\#|\Pi|$
-    
-### Cross-Validation
-3.  Cross-validation approach with $\mathcal{S}^{{\color{red} \text{te}}}$
-    - Approach: cv on grid of complexity parameters. Select complexity parameter $\lambda$ with the highest out-of-sample goodness-of-fit ${Q}^{\text{os}}$.
-    - ${Q}^{\text{os}}=-MSE$
 
 :::
 
-## Problems with using CART for HTE and its replacement
+## Problems with using CART for HTE
 
 - GOAL: Estimate within-leaf treatment effect 
 
@@ -641,10 +643,10 @@ $$
 Given $\Pi$,
 
 \begin{align*}
-        \text{MSE}_{\tau}(\mathcal{S^{{\color{red}\text{te}}}},\mathcal{S^{{\color{red}\text{est}}}}) &\equiv \frac{1}{\text{N}^{\color{red}\text{te}}}\sum_{i\in \mathcal{S^{{\color{red}\text{te}}}}}(\tau_i-\hat{\tau}(X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi))^2 \notag \\
-        &= \frac{1}{\text{N}^{\color{red}\text{te}}}\sum_{i\in \mathcal{S^{{\color{red}\text{te}}}}}(\tau_i^2-2\tau_i\cdot \hat{\tau}(X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi)+\hat{\tau}^2 (X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi)) \\
-        EMSE &=\mathbb{E}_{\mathcal{S}^{\color{red}{te}}, \mathcal{S}^{\color{red}{est}}}[\sum_{i\in \mathcal{S}^{\color{red}{te}}}(\tau_i-\hat{\tau}(X_i;\mathcal{S}^{\color{red}est}))^2] \\
-        &= \mathbb{V}_{\mathcal{S}^{\text{est}}, X_i}[\hat{\tau}(X_i; \mathcal{S}^{\text{est}},\Pi)]-\mathbb{E}_{X_i}[\tau^2(X_i;\Pi)]+\cancel{\mathbb{E}[\tau_i^2]}
+        \text{MSE}_{\tau}(\mathcal{S^{{\color{red}\text{te}}}},\mathcal{S^{{\color{red}\text{est}}}}) &\equiv \frac{1}{\text{N}^{\color{red}\text{te}}}\sum_{i\in \mathcal{S^{{\color{red}\text{te}}}}}[(\tau_i-\hat{\tau}(X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi))^2 -\tau_i^2 ]\notag \\
+        &= \frac{1}{\text{N}^{\color{red}\text{te}}}\sum_{i\in \mathcal{S^{{\color{red}\text{te}}}}}[-2\tau_i\cdot \hat{\tau}(X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi)+\hat{\tau}^2 (X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi)] \\
+        EMSE &=\mathbb{E}_{\mathcal{S}^{\color{red}{te}}, \mathcal{S}^{\color{red}{est}}}[\sum_{i\in \mathcal{S}^{\color{red}{te}}}((\tau_i-\hat{\tau}(X_i;\mathcal{S}^{\color{red}est}))^2-\tau_i^2)] \\
+        &= \mathbb{V}_{\mathcal{S}^{\text{est}}, X_i}[\hat{\tau}(X_i; \mathcal{S}^{\text{est}},\Pi)]-\mathbb{E}_{X_i}[\tau^2(X_i;\Pi)]
 \end{align*}
 
 
@@ -665,21 +667,21 @@ Given $\Pi$,
 where $p=N^\text{tr}_\text{treat}/N^\text{tr}$
 
 - Note that $S^2$'s are the sample variances of <span style="color: blue;">mean estimates</span>, <span style="color: red;">NOT</span> the treatment effects.
-- out-of-sample goodness-of-fit measure: $\hat{EMSE}_\tau(\mathcal{S^{\text{tr, cv}}},\Pi)$
 
 
 ## Interpretation of the Criterion
 - The first term <span style="color: blue;">rewards</span> high heterogeneity in treatment effects
-    \begin{align*}
-        \frac{1}{\text{N}^\text{tr}} \sum_{i\in\mathcal{S^\text{tr}}} \hat{\tau}^2(X_i;\mathcal{S}^{tr},\Pi)
+   
+   \begin{align*}
+            \hat{\mathbb{E}}_{X_i}[\tau^2(X_i;\Pi)]=\frac{1}{\text{N}^\text{tr}} \sum_{i\in\mathcal{S^\text{tr}}} \hat{\tau}^2(X_i;\mathcal{S}^{tr},\Pi)
     \end{align*}
+
 - The second term <span style="color: red;">penalizes</span> a partition that increases variance in leaf estimates (e.g. small leaves)
         \begin{align*}
-             -\frac{2}{\text{N}^{\text{tr}}}\sum_{\ell \in \Pi}(\frac{S^2_{\mathcal{S}^\text{tr}_\text{treat}}(\ell)}{p}+\frac{S^2_{\mathcal{S}^\text{tr}_\text{control}}(\ell)}{1-p})
+             -\hat{\mathbb{V}}_{\mathcal{S}^{est},X_i}[\hat{\tau}(X_i;\mathcal{S}^{est},\Pi)]
+             = -\frac{2}{\text{N}^{\text{tr}}}\sum_{\ell \in \Pi}(\frac{S^2_{\mathcal{S}^\text{tr}_\text{treat}}(\ell)}{p}+\frac{S^2_{\mathcal{S}^\text{tr}_\text{control}}(\ell)}{1-p})
         \end{align*}
-- Two terms are NOT proportional
-    (c.f. Terms in $\hat{EMSE}_\mu$ are proportional)
-
+        
 ## Pros and Cons of Honest {#sec-pro-con}
 - Pro: 
     * Honest target not only removes potential bias in leaf estimates but also penalizes high variance
@@ -704,9 +706,9 @@ where $p=N^\text{tr}_\text{treat}/N^\text{tr}$
 $$
     MSE_{\mu,W}(\mathcal{S}^{te},\mathcal{S}^{est},\Pi) \equiv
     \sum_{i\in\mathcal{S}^{te}}
-    ((Y_i^{\text{obs}}-
+    ((Y_i-
     \hat{\mu}_w({\color{red}W_i},X_i;\mathcal{S}^{est},\Pi))^2
-    -{Y_i^{\text{obs}}}^2)
+    -{Y_i}^2)
 $$
 
 
@@ -720,7 +722,8 @@ $$
 
 ### (2) Squared T-statistic Trees (TS)
 
-- Split Rule: Test $H_0$, the <span style="color: red;">CATE</span> is the same in the two potential leaves, with $T^2$
+- Split Rule:  split if $({\color{red}\overline{\tau}_L-\overline{\tau}_R})^2$ is sufficiently large
+    + **similar to two-sample t test**
 
 \begin{align*}
     T^2 \equiv N \cdot
@@ -753,22 +756,25 @@ $$
 ### Model
 
 $$
-    Y_i(w) = \eta(X_i) + \frac{1}{2}\cdot (2w-1) \cdot \kappa (X_i) + \epsilon_i
+    Y_i(w) = \eta(X_i) + \frac{1}{2}\cdot (2w-1) \cdot {\color{red} \kappa (X_i)} + \epsilon_i
 $$
     
-$\text{where} \quad \epsilon_i \sim N(0,.01), X_i \sim N(0,1) \quad \text{with} \quad \epsilon_i\perp X_i \quad \text{and }X_i\perp X_j$
+
+* $\epsilon_i \sim N(0,.01)$
+* $X_i \sim N(0,1)$
+* $\epsilon_i\perp X_i \quad \text{and}\quad X_i\perp X_j$
      
 ### Design
 
 We have three different setups:
 
-1. $K=2; \quad \eta(x) = \frac{1}{2}x_1 + x_2; \quad \kappa(x) = \frac{1}{2}x_1$
-2. $K=10; \quad \eta(x) = \frac{1}{2}(x_1+x_2) + \sum_{k=3}^6 x_k; \quad \kappa(x) = \frac{2}{1}\mathbb{I}\{x_k >0\}\cdot x_k$
-3. $K=20; \quad \eta(x) = \frac{1}{2}\sum_{k=1}^4 x_k + \sum_{k=5}^8 x_k; \quad \kappa(x) = \mathbb{I}\{x_k>0\} \cdot x_k$
+1. $K=2; \quad \kappa(x) = \frac{1}{2}x_1$
+2. $K=10; \quad \kappa(x) = \sum_{k=1}^2 \mathbb{I}\{x_k >0\}\cdot x_k$
+3. $K=20; \quad \kappa(x) = \sum_{k=1}^4 \mathbb{I}\{x_k>0\} \cdot x_k$
 <br>
-* Design 1: a simple model with two covariates. HTE is linear with $x_1$
-* Design 2: six covariates and two that interacts with TE. HTE is non linear 
-* Design 3: eight covariates and four that interacts with TE. HTE is non linear 
+* Design 1: two covariates. HTE is linear.
+* Design 2: six covariates. HTE is non linear 
+* Design 3: eight covariates. HTE is non linear 
 
 :::
 
@@ -776,13 +782,16 @@ We have three different setups:
 ## Simulation Study: Results
   
 ### CT-H vs alternative estimators
-:::: {.columns}
 
-::: {.column width="40%"}
-![](figures/fig2.png)
+::::{.columns}
+
+:::{.column width="60%"}
+
+![MSE divided by CT-H's MSE](figures/fig2.png){width="100%"}
+
 :::
 
-::: {.column width="60%"}
+:::{.column width="40%"}
 - CT-H:
     * Best overall performance across all designs
 
@@ -791,46 +800,45 @@ We have three different setups:
 - F-H:
     * Performs worst in all designs; splits based on outcome prediction
 
-<div style="margin-bottom: 0.5em;"></div>
 
-- TS-H:
-    * Strong in Design 1
-    * Underperforms in Designs 2 and 3 due to limitations of t-statistics in capturing nonlinear heterogeneity
 
 :::
 
 ::::
-
 
 ## Simulation Study: Results{#sec-sim-study}
   
 ### Adaptive vs Honest : Coverage for 90% confidence intervals
 
-:::: {.columns}
+::::{.columns}
 
-::: {.column width="40%"}
-![](figures/fig4.png)
+:::{.column width="60%"}
+
+![Coverage of 90% confidence intervals](figures/fig4.png)
+
 :::
 
-::: {.column width="60%"}
+
+:::{.column width="40%"}
+
 - Honest estimation achieves nominal 90% coverage in all designs, while adaptive methods often fall below
 
-<br>
+<div style="margin-bottom: 0.5em;"></div>
 
 - The fit estimator has the highest adaptive coverage rates; it doesn’t focus on treatment effects
 
-<br>
+<div style="margin-bottom: 0.5em;"></div>
 
 - Honest estimation sacrifices some goodness of fit for valid confidence intervals
 
 
-:::
-
-::::
-
 <p align="right">
 [<ins>More results</ins>](/#/sec-sim-app)
 </p>
+
+:::
+
+::::
 
 <!-- ## Observational Studies with Unconfoundedness
 
@@ -861,14 +869,21 @@ We have three different setups:
 
 - Different criterions can be used(fit, T-squared, etc.), but our baseline estimator(CT-H) performs the best in simulation.
 
-<div style="margin-bottom: 0.5em;"></div>
-
-- Can be extended to observational studies!
 
 
 
 ## Materials
-TBU
+
+
+
+  <div class="button-container">
+    <a href="https://example1.com">Link 1</a>
+    <a href="https://example2.com">Link 2</a>
+    <a href="https://example3.com">Link 3</a>
+    <a href="https://example4.com">Link 4</a>
+    <a href="https://example5.com">Link 5</a>
+  </div>
+
 
 # Appendix
 

@@ -151,3 +151,26 @@ code.sourceCode>span {
 .reveal .slides section .fragment.fadein-gray.visible {
   color: rgba(0, 0, 0, 1); /* full black, fully visible */
 }
+
+.button-container {
+  display: flex;
+  flex-direction: column;
+  height: 80vh; /* 80% of the viewport height */
+  width: 100%;   /* Full width of the slide */
+}
+.button-container a {
+  flex: 1; /* Equal height for each button */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  color: white;
+  background-color: #007BFF; /* Blue button */
+  font-size: 2em;
+  margin: 5px 0;
+  border-radius: 8px;
+  transition: background-color 0.3s;
+}
+.button-container a:hover {
+  background-color: #0056b3; /* Darker on hover */
+}
