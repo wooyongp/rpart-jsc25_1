@@ -598,7 +598,7 @@ $$
 
 
 ### Criterion
-2.  Criterion Function (for fixed complexity parameter $\lambda$)
+2.  Criterion Function
     - In-sample Goodness-of-fit function: <span style="color: red;">NOT FEASIBLE</span>
     $$
             Q^{is}=-MSE=-\frac{1}{N}\sum_{i=1}^{N}(\tau_i-\hat{\tau}_i)^2
@@ -872,7 +872,7 @@ We have three different setups:
 
 
 
-## Materials
+## Resources
 
 
 
