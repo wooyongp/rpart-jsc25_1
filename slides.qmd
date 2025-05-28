@@ -194,7 +194,7 @@ $$
 
 3. Repeat this process.
 
-4. Our prediction within each leaf is the sample mean within each leaf:
+4. **(Important!!)** Our prediction within each leaf is the sample mean within each leaf:
 
 $$
 \hat{y}(\text{leaf}) = \overline{y}_{(\text{leaf})}
@@ -289,6 +289,22 @@ kableExtra::kable(df)
 ```
 
 ::::
+
+## Roadmap
+
+### Trees can be more flexible and data-driven. However,
++ CART - biased estimates of CATE $\rightarrow \mathbb{E}[\hat{\tau}(X;S^{tr}) \mid x] \neq \tau(x)$
++ How to solve? We split the sample
+    - $S^{tr}$ for building a tree
+    - $S^{est}$ to estimate CATEs and take no role in building a tree
+
+<div style="margin-bottom: 0.5em;"></div>
+
++ How does this change the tree?
+    - For outcome prediction($Y$)  <span style="color:gray;">- Joonwoo</span>
+    - For CATE($\tau(X)$) <span style="color:gray;">- Jeongwoo</span>
+    - Simulation Results <span style="color:gray;">- Minseo</span>
+
 
 
 # Honest Inference for Outcome Averages
@@ -897,7 +913,7 @@ We have three different setups:
 
 <div style="margin-bottom: 0.3em;"></div>
 
-- <a href="https://wooyongp.github.io/rpart-jsc25_1/ref/honest_practice.html" class="btn btn-primary">Examples of Applied Micro papers using the causal tree + generalized random forests</a>  - oriented by Minseo Seok
+- <a href="https://wooyongp.github.io/rpart-jsc25_1/ref/reading_list.pdf" class="btn btn-primary">Reading List of Applied Micro researches using the causal tree + generalized random forests</a>  - oriented by Minseo Seok
 
 
 

@@ -375,7 +375,7 @@ MSE = \underbrace{\sum_{i \in L}(y_i-\hat{y}_L)^2}_{\text{left-side MSE}} + \und
 </span></p>
 <ol start="3" type="1">
 <li><p>Repeat this process.</p></li>
-<li><p>Our prediction within each leaf is the sample mean within each leaf:</p></li>
+<li><p><strong>(Important!!)</strong> Our prediction within each leaf is the sample mean within each leaf:</p></li>
 </ol>
 <p><span class="math display">
 \hat{y}(\text{leaf}) = \overline{y}_{(\text{leaf})}
@@ -507,6 +507,29 @@ MSE_\mu(S, S^{tr}, \Pi) = \frac{1}{\#(S)} \sum_{i \in S} \biggl[(Y_i -\hat{\mu}(
 </div>
 </div>
 </div>
+</section>
+<section id="roadmap" class="slide level2">
+<h2>Roadmap</h2>
+<h3 id="trees-can-be-more-flexible-and-data-driven.-however">Trees can be more flexible and data-driven. However,</h3>
+<ul>
+<li>CART - biased estimates of CATE <span class="math inline">\rightarrow \mathbb{E}[\hat{\tau}(X;S^{tr}) \mid x] \neq \tau(x)</span></li>
+<li>How to solve? We split the sample
+<ul>
+<li><span class="math inline">S^{tr}</span> for building a tree</li>
+<li><span class="math inline">S^{est}</span> to estimate CATEs and take no role in building a tree</li>
+</ul></li>
+</ul>
+<div style="margin-bottom: 0.5em;">
+
+</div>
+<ul>
+<li>How does this change the tree?
+<ul>
+<li>For outcome prediction(<span class="math inline">Y</span>) <span style="color:gray;">- Joonwoo</span></li>
+<li>For CATE(<span class="math inline">\tau(X)</span>) <span style="color:gray;">- Jeongwoo</span></li>
+<li>Simulation Results <span style="color:gray;">- Minseo</span></li>
+</ul></li>
+</ul>
 </section></section>
 <section>
 <section id="honest-inference-for-outcome-averages" class="title-slide slide level1 center">
@@ -1125,7 +1148,7 @@ MSE_\mu(S, S^{tr}, \Pi) = \frac{1}{\#(S)} \sum_{i \in S} \biggl[(Y_i -\hat{\mu}(
 
 </div>
 <ul>
-<li><a href="https://wooyongp.github.io/rpart-jsc25_1/ref/honest_practice.html" class="btn btn-primary">Examples of Applied Micro papers using the causal tree + generalized random forests</a> - oriented by Minseo Seok</li>
+<li><a href="https://wooyongp.github.io/rpart-jsc25_1/ref/reading_list.pdf" class="btn btn-primary">Reading List of Applied Micro researches using the causal tree + generalized random forests</a> - oriented by Minseo Seok</li>
 </ul>
 </section></section>
 <section>
