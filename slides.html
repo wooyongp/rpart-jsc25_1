@@ -309,7 +309,7 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <section id="building-a-tree" class="slide level2">
 <h2>Building a Tree</h2>
 <div class="panel-tabset">
-<ul id="tabset-1" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-1-1">CART</a></li><li><a href="#tabset-1-2">Example</a></li><li><a href="#tabset-1-3">Criterion</a></li></ul>
+<ul id="tabset-1" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-1-1">CART</a></li><li><a href="#tabset-1-2">Example</a></li><li><a href="#tabset-1-3">Details (1)</a></li><li><a href="#tabset-1-4">Details (2)</a></li></ul>
 <div class="tab-content">
 <div id="tabset-1-1">
 <p><strong>Classification and Regression Trees</strong> recursively divide the covariate space into two so that MSE decreases each time we add a partition. In the figure below, we have a partition with 5 leaves.</p>
@@ -371,7 +371,7 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <li><p>Within <span class="math inline">S^{tr}</span>, choose <span class="math inline">X_i</span> and a cutoff <span class="math inline">k</span> that minimizes MSE:</p></li>
 </ol>
 <p><span class="math display">
-\underbrace{\sum_{i \in L}(y_i-\overline{y}_L)^2}_{\text{left-side MSE}} + \underbrace{\sum_{i \in R}(y_i-\overline{y}_R)^2}_{\text{right-side MSE}}
+MSE = \underbrace{\sum_{i \in L}(y_i-\hat{y}_L)^2}_{\text{left-side MSE}} + \underbrace{\sum_{i \in R}(y_i-\hat{y}_R)^2}_{\text{right-side MSE}}
 </span></p>
 <ol start="3" type="1">
 <li><p>Repeat this process.</p></li>
@@ -380,9 +380,17 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <p><span class="math display">
 \hat{y}(\text{leaf}) = \overline{y}_{(\text{leaf})}
 </span></p>
+</div>
+<div id="tabset-1-4">
 <ol start="5" type="1">
-<li>Evaluate the prediction performance in <span class="math inline">S^{te}</span>.</li>
+<li>The resulting MSE of the model given a data <span class="math inline">S</span> and partition <span class="math inline">\Pi</span> would be <span class="math display">
+MSE_\mu(S, S^{tr}, \Pi) = \frac{1}{\#(S)} \sum_{i \in S} \biggl[Y_i -\hat{\mu}(X_i; S^{tr}, \Pi)\biggr]^2
+</span></li>
 </ol>
+<p>In this paper, we use the <strong>adjusted</strong> MSE: <span class="math display">
+MSE_\mu(S, S^{tr}, \Pi) = \frac{1}{\#(S)} \sum_{i \in S} \biggl[(Y_i -\hat{\mu}(X_i; S^{tr}, \Pi))^2- {\color{blue}Y_i^2}\biggr]
+</span></p>
+<p>which does not affect the splitting mechanism but makes the algebra more interpretable.</p>
 </div>
 </div>
 </div>
@@ -401,10 +409,10 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <span id="cb2-3"><a href=""></a><span class="fu">library</span>(ggplot2)</span>
 <span id="cb2-4"><a href=""></a><span class="fu">library</span>(rpart.plot)</span>
 <span id="cb2-5"><a href=""></a></span>
-<span id="cb2-6"><a href=""></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb2-6"><a href=""></a><span class="fu">set.seed</span>(<span class="dv">456</span>)</span>
 <span id="cb2-7"><a href=""></a></span>
 <span id="cb2-8"><a href=""></a><span class="co"># simulate data and apply CART with two features</span></span>
-<span id="cb2-9"><a href=""></a>n <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb2-9"><a href=""></a>n <span class="ot">&lt;-</span> <span class="dv">10000</span></span>
 <span id="cb2-10"><a href=""></a></span>
 <span id="cb2-11"><a href=""></a>x1 <span class="ot">&lt;-</span> <span class="fu">runif</span>(n, <span class="dv">0</span>, <span class="dv">10</span>)</span>
 <span id="cb2-12"><a href=""></a>x2 <span class="ot">&lt;-</span> <span class="fu">runif</span>(n, <span class="sc">-</span><span class="dv">5</span>, <span class="dv">5</span>)</span>
@@ -412,7 +420,7 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <span id="cb2-14"><a href=""></a>    </span>
 <span id="cb2-15"><a href=""></a><span class="co"># Fit regression tree</span></span>
 <span id="cb2-16"><a href=""></a>data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x1 =</span> x1, <span class="at">x2 =</span> x2, <span class="at">y =</span> y)</span>
-<span id="cb2-17"><a href=""></a>tree_model <span class="ot">&lt;-</span> <span class="fu">rpart</span>(y <span class="sc">~</span> x1 <span class="sc">+</span> x2, <span class="at">data =</span> data, <span class="at">control =</span> <span class="fu">rpart.control</span>(<span class="at">cp =</span> <span class="fl">0.01</span>))</span>
+<span id="cb2-17"><a href=""></a>tree_model <span class="ot">&lt;-</span> <span class="fu">rpart</span>(y <span class="sc">~</span> x1 <span class="sc">+</span> x2, <span class="at">data =</span> data, <span class="at">control =</span> <span class="fu">rpart.control</span>(<span class="at">cp =</span> <span class="fl">0.04</span>))</span>
 <span id="cb2-18"><a href=""></a>    </span>
 <span id="cb2-19"><a href=""></a><span class="co"># Pruning</span></span>
 <span id="cb2-20"><a href=""></a>best <span class="ot">&lt;-</span> tree_model<span class="sc">$</span>cptable[<span class="fu">which.min</span>(tree_model<span class="sc">$</span>cptable[,<span class="st">"xerror"</span>]),<span class="st">"CP"</span>]</span>
@@ -437,7 +445,7 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <span id="cb3-2"><a href=""></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb3-3"><a href=""></a></span>
 <span id="cb3-4"><a href=""></a><span class="co"># Make a data and compute the sample mean in each leaf</span></span>
-<span id="cb3-5"><a href=""></a>n <span class="ot">&lt;-</span> <span class="dv">10000000</span></span>
+<span id="cb3-5"><a href=""></a>n <span class="ot">&lt;-</span> <span class="dv">100000</span></span>
 <span id="cb3-6"><a href=""></a></span>
 <span id="cb3-7"><a href=""></a>x1 <span class="ot">&lt;-</span> <span class="fu">runif</span>(n, <span class="dv">0</span>, <span class="dv">10</span>)</span>
 <span id="cb3-8"><a href=""></a>x2 <span class="ot">&lt;-</span> <span class="fu">runif</span>(n, <span class="sc">-</span><span class="dv">5</span>, <span class="dv">5</span>)</span>
@@ -445,33 +453,55 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <span id="cb3-10"><a href=""></a></span>
 <span id="cb3-11"><a href=""></a>data <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">x1 =</span> x1, <span class="at">x2 =</span> x2, <span class="at">y =</span> y) <span class="sc">|&gt;</span> </span>
 <span id="cb3-12"><a href=""></a>    <span class="fu">mutate</span>(<span class="at">leaf =</span> <span class="fu">case_when</span>(</span>
-<span id="cb3-13"><a href=""></a>        x1<span class="sc">&lt;</span><span class="fl">2.4</span> <span class="sc">&amp;</span> x2<span class="sc">&lt;</span><span class="fl">1.34</span> <span class="sc">~</span> <span class="st">"1"</span>,</span>
-<span id="cb3-14"><a href=""></a>        x1<span class="sc">&gt;</span><span class="fl">2.4</span> <span class="sc">&amp;</span> x2<span class="sc">&lt;</span><span class="fl">1.34</span> <span class="sc">&amp;</span> x1<span class="sc">&lt;</span><span class="fl">4.16</span> <span class="sc">~</span> <span class="st">"2"</span>,</span>
-<span id="cb3-15"><a href=""></a>        x1<span class="sc">&lt;</span><span class="fl">4.16</span> <span class="sc">&amp;</span> x2<span class="sc">&gt;=</span><span class="fl">1.34</span> <span class="sc">~</span> <span class="st">"3"</span>,</span>
-<span id="cb3-16"><a href=""></a>        x1<span class="sc">&lt;</span><span class="fl">6.84</span> <span class="sc">&amp;</span> x1<span class="sc">&gt;=</span><span class="fl">4.16</span> <span class="sc">&amp;</span> x2<span class="sc">&lt;</span><span class="fl">3.61</span> <span class="sc">~</span> <span class="st">"4"</span>,</span>
-<span id="cb3-17"><a href=""></a>        x1<span class="sc">&lt;</span><span class="fl">6.84</span> <span class="sc">&amp;</span> x2<span class="sc">&gt;=</span><span class="fl">3.61</span> <span class="sc">~</span> <span class="st">"5"</span>,</span>
-<span id="cb3-18"><a href=""></a>        x1<span class="sc">&gt;=</span><span class="fl">6.84</span> <span class="sc">&amp;</span> x2<span class="sc">&lt;</span><span class="fl">0.237</span> <span class="sc">~</span> <span class="st">"6"</span>,</span>
-<span id="cb3-19"><a href=""></a>        x1<span class="sc">&gt;=</span><span class="fl">6.84</span> <span class="sc">&amp;</span> x2<span class="sc">&gt;=</span><span class="fl">0.237</span> <span class="sc">&amp;</span> x2<span class="sc">&lt;</span><span class="fl">2.39</span> <span class="sc">~</span> <span class="st">"7"</span>,</span>
-<span id="cb3-20"><a href=""></a>        x1<span class="sc">&gt;=</span><span class="fl">6.84</span> <span class="sc">&amp;</span> x2<span class="sc">&gt;=</span><span class="fl">2.39</span> <span class="sc">~</span> <span class="st">"8"</span></span>
-<span id="cb3-21"><a href=""></a>    ))</span>
+<span id="cb3-13"><a href=""></a>        x1<span class="sc">&lt;</span><span class="fl">2.62</span> <span class="sc">&amp;</span> x2<span class="sc">&lt;</span><span class="fl">1.77</span> <span class="sc">~</span> <span class="st">"1"</span>,</span>
+<span id="cb3-14"><a href=""></a>        x1<span class="sc">&lt;</span><span class="fl">5.23</span> <span class="sc">&amp;</span> x1<span class="sc">&gt;=</span><span class="fl">2.62</span> <span class="sc">&amp;</span> x2<span class="sc">&lt;</span><span class="fl">1.77</span> <span class="sc">~</span> <span class="st">"2"</span>,</span>
+<span id="cb3-15"><a href=""></a>        x1<span class="sc">&lt;</span><span class="fl">5.23</span> <span class="sc">&amp;</span> x2<span class="sc">&gt;=</span><span class="fl">1.77</span> <span class="sc">~</span> <span class="st">"3"</span>,</span>
+<span id="cb3-16"><a href=""></a>        x1<span class="sc">&gt;=</span><span class="fl">5.23</span> <span class="sc">&amp;</span> x2<span class="sc">&lt;</span><span class="fl">1.81</span> <span class="sc">~</span> <span class="st">"4"</span>,</span>
+<span id="cb3-17"><a href=""></a>        x1<span class="sc">&gt;=</span><span class="fl">5.23</span> <span class="sc">&amp;</span> x2<span class="sc">&gt;=</span><span class="fl">1.81</span> <span class="sc">~</span> <span class="st">"5"</span></span>
+<span id="cb3-18"><a href=""></a>    ))</span>
+<span id="cb3-19"><a href=""></a></span>
+<span id="cb3-20"><a href=""></a>df <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span> <span class="fu">group_by</span>(leaf) <span class="sc">|&gt;</span> <span class="fu">summarize</span>(<span class="at">unbiased_mean =</span> <span class="fu">mean</span>(y)) <span class="sc">|&gt;</span> </span>
+<span id="cb3-21"><a href=""></a>    <span class="fu">mutate</span>(<span class="at">tree_mean =</span> <span class="fu">c</span>(<span class="fl">4.27</span>, <span class="fl">9.51</span>, <span class="fl">16.5</span>, <span class="fl">16.9</span>, <span class="fl">26.5</span>))</span>
 <span id="cb3-22"><a href=""></a></span>
-<span id="cb3-23"><a href=""></a>df <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span> <span class="fu">group_by</span>(leaf) <span class="sc">|&gt;</span> <span class="fu">summarize</span>(<span class="at">unbiased_mean =</span> <span class="fu">mean</span>(y)) <span class="sc">|&gt;</span> </span>
-<span id="cb3-24"><a href=""></a>    <span class="fu">mutate</span>(<span class="at">tree_mean =</span> <span class="fu">c</span>(<span class="fl">4.35</span>, <span class="fl">8.26</span>, <span class="fl">11.6</span>, <span class="fl">12.94</span>, <span class="fl">19.85</span>, <span class="fl">17.84</span>, <span class="fl">22.15</span>, <span class="fl">29.02</span>))</span>
-<span id="cb3-25"><a href=""></a></span>
-<span id="cb3-26"><a href=""></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="fu">as.numeric</span>(leaf))) <span class="sc">+</span></span>
-<span id="cb3-27"><a href=""></a>    <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y=</span>unbiased_mean, <span class="at">color=</span><span class="st">'ub'</span>)) <span class="sc">+</span></span>
-<span id="cb3-28"><a href=""></a>    <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y=</span>tree_mean, <span class="at">color =</span> <span class="st">'b'</span>)) <span class="sc">+</span></span>
-<span id="cb3-29"><a href=""></a>    <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">8</span>, <span class="at">breaks=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">8</span>) <span class="sc">+</span></span>
-<span id="cb3-30"><a href=""></a>    <span class="fu">scale_color_manual</span>(<span class="at">name =</span><span class="cn">NULL</span>,  <span class="at">values=</span><span class="fu">c</span>(<span class="st">"ub"</span> <span class="ot">=</span> <span class="st">"red"</span>, <span class="st">"b"</span> <span class="ot">=</span> <span class="st">"blue"</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"tree"</span>, <span class="st">"true DGP"</span>)) <span class="sc">+</span></span>
-<span id="cb3-31"><a href=""></a>    <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"CART mean vs true mean"</span>, <span class="at">x=</span><span class="st">"leaf"</span>, <span class="at">y=</span><span class="st">"mean"</span>) <span class="sc">+</span></span>
-<span id="cb3-32"><a href=""></a>    <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-23"><a href=""></a>kableExtra<span class="sc">::</span><span class="fu">kable</span>(df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div>
-<figure>
-<p><img data-src="slides_files/figure-revealjs/unnamed-chunk-3-1.png" width="960"></p>
-</figure>
-</div>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: left;">leaf</th>
+<th style="text-align: right;">unbiased_mean</th>
+<th style="text-align: right;">tree_mean</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">4.334393</td>
+<td style="text-align: right;">4.27</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2</td>
+<td style="text-align: right;">9.563450</td>
+<td style="text-align: right;">9.51</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">3</td>
+<td style="text-align: right;">16.405273</td>
+<td style="text-align: right;">16.50</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">4</td>
+<td style="text-align: right;">17.000677</td>
+<td style="text-align: right;">16.90</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">5</td>
+<td style="text-align: right;">26.452853</td>
+<td style="text-align: right;">26.50</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 </div>
@@ -483,6 +513,17 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <h1>Honest Inference for Outcome Averages</h1>
 
 </section>
+<section id="notations-for-predicted-outcomes" class="slide level2">
+<h2>Notations for predicted outcomes</h2>
+<ul>
+<li><p>Given a partition <span class="math inline">\Pi</span>, conditional mean is given by: <span class="math display">\begin{equation*}
+      \mu(x;\Pi) = \mathbb{E}\left[Y_i | X_i \in \textit{l}(x;\Pi)\right]
+  \end{equation*}</span></p></li>
+<li><p>Given a sample <span class="math inline">\mathcal{S}</span> we estimate conditional mean is given by <span class="math display">\begin{equation*}
+      \hat{\mu}(x;\mathcal{S},\Pi) = \frac{1}{\#(i \in \mathcal{S} : X_i \in \textit{l}(x;\Pi))}\sum\limits_{i \in \mathcal{S}:X_i \in \textit{l}(x;\Pi)}Y_i
+  \end{equation*}</span></p></li>
+</ul>
+</section>
 <section id="cart-vs-honest" class="slide level2">
 <h2>CART vs Honest</h2>
 <p>Honest Estimation uses two different samples : <span class="math inline">S^{tr}</span> for splitting and <span class="math inline">S^{est}</span> for estimation.</p>
@@ -492,35 +533,57 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 </span></p>
 <h3 id="honest">Honest</h3>
 <p><span class="math display">
-\hat{\mu}(x;S^{est},\pi(S^{tr}))=\frac{1}{\#(i \in S^{est} : X_i \in \textit{l}(x;\pi(S^{tr})))}\sum\limits_{i\in S^{est}:X_i \in \textit{l}(x;\pi(S^{tr}))}Y_i
+\hat{\mu}(x;{\color{red}S^{est}},\pi(S^{tr}))=\frac{1}{\#(i \in {\color{red}S^{est}} : X_i \in \textit{l}(x;\pi(S^{tr})))}\sum\limits_{i\in {\color{red}S^{est}}:X_i \in \textit{l}(x;\pi(S^{tr}))}Y_i
 </span></p>
 </section>
 <section id="limitations-of-cart" class="slide level2">
 <h2>Limitations of CART</h2>
-<ul>
-<li>We cannot simply use CART to estimate HTE.
+<h3 id="we-cannot-simply-use-cart-to-estimate-hte.">We cannot simply use CART to estimate HTE.</h3>
 <ul>
 <li>Potential bias in the leaf estimates</li>
 <li>does not consider variance in tree splitting</li>
-</ul></li>
 </ul>
-<div class="fragment custom fadein-gray">
-<p>Suppose the feature space is <span class="math inline">\quad \mathbb{X} = \{L,R\}</span></p>
-<p>Recursive partitioning simply does the following:</p>
-<p><span class="math display">\begin{align*}
-    \pi(S)= \begin{cases}
-    \quad \{ \{L,R \} \} &amp; \text{if} \quad \bar{Y}_L -\bar{Y}_R \leq c \\
-    \quad \{ \{L\}, \{R \} \} &amp; \text{ifx} \quad \bar{Y}_L -\bar{Y}_R &gt; c
-    \end{cases}
-\end{align*}</span></p>
-<p>If we condition on <span class="math inline">\bar{Y}_L -\bar{Y}_R &gt;c</span>, we expect bias.</p>
-</div>
 </section>
 <section id="limitations-of-cart-1" class="slide level2">
 <h2>Limitations of CART</h2>
+<p>Suppose <span class="math inline">Y_i \in \mathbb{R}, \quad X_i \in \{L,R\}</span></p>
+<ul>
+<li><p>Only two possible partitions : <span class="math display">\begin{equation*}
+      \Pi = \begin{cases}
+          \{L,R\} &amp; (\text{no split}) \\
+          \{ \{L\}, \{R\} \} &amp; (\text{split})
+      \end{cases}
+  \end{equation*}</span></p></li>
+<li><p>To build Regression tree, we compare</p>
+<p><span class="math display">\begin{equation*}
+  \begin{aligned}
+      \frac{1}{\#(S^{tr})}\sum\limits_{i: X_i \in S^{tr}}(Y_i-\bar{Y})^2 \quad\text{and}\qquad \qquad \qquad \qquad \qquad \qquad \qquad  \\
+       \frac{1}{\#(i:X_i\in L)}\sum\limits_{i: X_i=L}(Y_i-\bar{Y_L})^2+\frac{1}{\#(i: X_i \in R)}\sum\limits_{i:X_i = R}(Y_i-\bar{Y_R})^2
+   \end{aligned}
+  \end{equation*}</span></p></li>
+</ul>
+</section>
+<section id="limitations-of-cart-2" class="slide level2">
+<h2>Limitations of CART</h2>
+<ul>
+<li>This is equivalent to</li>
+</ul>
+<p><span class="math display">\begin{align*}
+    \pi(S)= \begin{cases}
+    \quad \{ \{L,R \} \} &amp; \text{if} \quad |\bar{Y}_L -\bar{Y}_R| \leq c \\
+    \quad \{ \{L\}, \{R \} \} &amp; \text{if} \quad |\bar{Y}_L -\bar{Y}_R| &gt; c
+    \end{cases}
+\end{align*}</span></p>
+<p>If we condition on <span class="math inline">\bar{Y}_L -\bar{Y}_R &gt;c</span>, we expect bias:</p>
+<p><span class="math display">
+\mathbb{E}(\overline{Y}_k) \neq  \mathbb{E}(\overline{Y}_k| \left|\overline{Y}_L -\overline{Y}_R \right| &gt; c)
+</span></p>
+</section>
+<section id="limitations-of-cart-3" class="slide level2">
+<h2>Limitations of CART</h2>
 <h3 id="example-1">Example</h3>
 <div class="panel-tabset">
-<ul id="tabset-3" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-3-1">Training 1</a></li><li><a href="#tabset-3-2">Training 2</a></li><li><a href="#tabset-3-3">Estimation Set</a></li></ul>
+<ul id="tabset-3" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-3-1">Training</a></li><li><a href="#tabset-3-2">Estimation Set</a></li></ul>
 <div class="tab-content">
 <div id="tabset-3-1">
 <div class="columns">
@@ -568,52 +631,29 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href=""></a>fit <span class="ot">=</span> <span class="fu">rpart</span>(Kyphosis <span class="sc">~</span> Start <span class="sc">+</span> Age, <span class="at">data =</span> train2)</span>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href=""></a>fit <span class="ot">=</span> <span class="fu">rpart</span>(Kyphosis <span class="sc">~</span> Start <span class="sc">+</span> Age, <span class="at">data =</span> kyphosis)</span>
 <span id="cb5-2"><a href=""></a></span>
-<span id="cb5-3"><a href=""></a><span class="fu">ggplot</span>(train2, <span class="fu">aes</span>(<span class="at">x =</span> Start, <span class="at">y =</span> Age)) <span class="sc">+</span></span>
-<span id="cb5-4"><a href=""></a>  <span class="fu">geom_parttree</span>(<span class="at">data =</span> fit, <span class="at">alpha =</span> <span class="fl">0.1</span>, <span class="fu">aes</span>(<span class="at">fill =</span> Kyphosis)) <span class="sc">+</span> <span class="co"># &lt;-- key layer</span></span>
-<span id="cb5-5"><a href=""></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">col =</span> Kyphosis)) <span class="sc">+</span></span>
-<span id="cb5-6"><a href=""></a>  <span class="fu">labs</span>(</span>
-<span id="cb5-7"><a href=""></a>    <span class="at">x =</span> <span class="st">"No. of topmost vertebra operated on"</span>, <span class="at">y =</span> <span class="st">"Patient age (months)"</span>,</span>
-<span id="cb5-8"><a href=""></a>    <span class="at">caption =</span> <span class="st">"Note: Points denote observations. Shading denotes model predictions."</span></span>
-<span id="cb5-9"><a href=""></a>    ) <span class="sc">+</span></span>
-<span id="cb5-10"><a href=""></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-3"><a href=""></a><span class="fu">ggplot</span>(kyphosis, <span class="fu">aes</span>(<span class="at">x =</span> Start, <span class="at">y =</span> Age)) <span class="sc">+</span></span>
+<span id="cb5-4"><a href=""></a><span class="co">#   geom_parttree(data = fit, alpha = 0.1, aes(fill = Kyphosis)) + # &lt;-- key layer</span></span>
+<span id="cb5-5"><a href=""></a>  <span class="fu">geom_jitter</span>(<span class="fu">aes</span>(<span class="at">col =</span> Kyphosis)) <span class="sc">+</span></span>
+<span id="cb5-6"><a href=""></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x=</span><span class="dv">10</span>, <span class="at">y=</span><span class="dv">50</span>), <span class="at">color =</span> <span class="st">"#F8766D"</span>) <span class="sc">+</span></span>
+<span id="cb5-7"><a href=""></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x=</span><span class="dv">3</span>, <span class="at">y=</span><span class="dv">58</span>), <span class="at">color =</span> <span class="st">"#F8766D"</span>) <span class="sc">+</span></span>
+<span id="cb5-8"><a href=""></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x=</span><span class="fl">12.3</span>, <span class="at">y=</span><span class="dv">210</span>), <span class="at">color =</span> <span class="st">"#F8766D"</span>) <span class="sc">+</span></span>
+<span id="cb5-9"><a href=""></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x=</span><span class="fl">12.2</span>, <span class="at">y=</span><span class="dv">200</span>), <span class="at">color =</span> <span class="st">"#F8766D"</span>) <span class="sc">+</span></span>
+<span id="cb5-10"><a href=""></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x=</span><span class="dv">4</span>, <span class="at">y=</span><span class="dv">65</span>), <span class="at">color =</span> <span class="st">"#F8766D"</span>) <span class="sc">+</span></span>
+<span id="cb5-11"><a href=""></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x=</span><span class="fl">4.5</span>, <span class="at">y=</span><span class="dv">100</span>), <span class="at">color =</span> <span class="st">"#F8766D"</span>) <span class="sc">+</span></span>
+<span id="cb5-12"><a href=""></a>  <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="dv">0</span>, <span class="at">xend =</span> <span class="fl">12.5</span>, <span class="at">y =</span> <span class="dv">35</span>, <span class="at">yend =</span> <span class="dv">35</span>), <span class="at">linetype=</span><span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb5-13"><a href=""></a>  <span class="fu">geom_vline</span>(<span class="fu">aes</span>(<span class="at">xintercept=</span><span class="fl">12.5</span>), <span class="at">linetype=</span><span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb5-14"><a href=""></a>  <span class="fu">labs</span>(</span>
+<span id="cb5-15"><a href=""></a>    <span class="at">x =</span> <span class="st">"No. of topmost vertebra operated on"</span>, <span class="at">y =</span> <span class="st">"Patient age (months)"</span>,</span>
+<span id="cb5-16"><a href=""></a>    <span class="at">caption =</span> <span class="st">"Note: Points denote observations. Shading denotes model predictions."</span></span>
+<span id="cb5-17"><a href=""></a>    ) <span class="sc">+</span></span>
+<span id="cb5-18"><a href=""></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
 <figure>
 <p><img data-src="slides_files/figure-revealjs/unnamed-chunk-5-1.png" width="960"></p>
-</figure>
-</div>
-</div>
-</div>
-</div><div class="column" style="width:30%;">
-
-</div></div>
-</div>
-<div id="tabset-3-3">
-<div class="columns">
-<div class="column" style="width:70%;">
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href=""></a>fit <span class="ot">=</span> <span class="fu">rpart</span>(Kyphosis <span class="sc">~</span> Start <span class="sc">+</span> Age, <span class="at">data =</span> kyphosis)</span>
-<span id="cb6-2"><a href=""></a></span>
-<span id="cb6-3"><a href=""></a><span class="fu">ggplot</span>(kyphosis, <span class="fu">aes</span>(<span class="at">x =</span> Start, <span class="at">y =</span> Age)) <span class="sc">+</span></span>
-<span id="cb6-4"><a href=""></a><span class="co">#   geom_parttree(data = fit, alpha = 0.1, aes(fill = Kyphosis)) + # &lt;-- key layer</span></span>
-<span id="cb6-5"><a href=""></a>  <span class="fu">geom_jitter</span>(<span class="fu">aes</span>(<span class="at">col =</span> Kyphosis)) <span class="sc">+</span></span>
-<span id="cb6-6"><a href=""></a>  <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="dv">0</span>, <span class="at">xend =</span> <span class="fl">12.5</span>, <span class="at">y =</span> <span class="dv">35</span>, <span class="at">yend =</span> <span class="dv">35</span>), <span class="at">linetype=</span><span class="st">"dashed"</span>) <span class="sc">+</span></span>
-<span id="cb6-7"><a href=""></a>  <span class="fu">geom_vline</span>(<span class="fu">aes</span>(<span class="at">xintercept=</span><span class="fl">12.5</span>), <span class="at">linetype=</span><span class="st">"dashed"</span>) <span class="sc">+</span></span>
-<span id="cb6-8"><a href=""></a>  <span class="fu">labs</span>(</span>
-<span id="cb6-9"><a href=""></a>    <span class="at">x =</span> <span class="st">"No. of topmost vertebra operated on"</span>, <span class="at">y =</span> <span class="st">"Patient age (months)"</span>,</span>
-<span id="cb6-10"><a href=""></a>    <span class="at">caption =</span> <span class="st">"Note: Points denote observations. Shading denotes model predictions."</span></span>
-<span id="cb6-11"><a href=""></a>    ) <span class="sc">+</span></span>
-<span id="cb6-12"><a href=""></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output-display">
-<div>
-<figure>
-<p><img data-src="slides_files/figure-revealjs/unnamed-chunk-6-1.png" width="960"></p>
 </figure>
 </div>
 </div>
@@ -628,25 +668,18 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <section id="the-honest-criterion" class="slide level2">
 <h2>The Honest Criterion</h2>
 <p><span class="math display">\begin{align*}
-        \text{MSE}_{\mu}(\underbrace{S^{te}}_\text{test set},\underbrace{S^{est}}_\text{estimation set},\Pi) &amp;= \frac{1}{\#(S^{te})}\sum\limits_{i \in S^{te}}\left[(Y_i - \hat{\mu}(X_i;S^{\color{red} est},\Pi))^2{\color{blue} -Y_i^2}\right]
+        \text{MSE}_{\mu}(\underbrace{S^{tr}}_\text{training set},\underbrace{S^{est}}_\text{estimation set},\Pi) &amp;= \frac{1}{\#(S^{tr})}\sum\limits_{i \in S^{tr}}\left[(Y_i - \hat{\mu}(X_i;{\color{red}S^{ est}},\Pi))^2-Y_i^2\right]
 \end{align*}</span></p>
 <div style="margin-bottom: 0.4em;">
 
 </div>
 <p><span class="math display">\begin{align*}
-        \text{EMSE}_\mu &amp;= \mathbb{E}_{S^{te},S^{est}}\left[\text{MSE}_\mu(S^{te},S^{est},\Pi)\right]
+        \text{EMSE}_\mu &amp;= \mathbb{E}_{S^{tr},S^{est}}\left[\text{MSE}_\mu(S^{tr},S^{est},\Pi)\right]
 \end{align*}</span></p>
 <div style="margin-bottom: 0.4em;">
 
 </div>
-<p>Then, our goal is to find <span class="math inline">\pi</span> that would maximize the <strong>Honest Criterion</strong>: <span class="math display">\begin{equation*}
-        -\mathbb{E}_{S^{te},S^{est},S^{tr}}\biggl[MSE_\mu\bigl(S^{te},S^{est},\pi(S^{tr})\bigr)\biggr]
-\end{equation*}</span></p>
-<ul>
-<li><span class="math inline">S^{te}</span> : We take expectation over the test set</li>
-<li><span class="math inline">S^{tr}</span> : Tree is built out of the training set</li>
-<li><span class="math inline">S^{est}</span> : <span class="math inline">\hat{\mu}</span> is computed in the estimation set</li>
-</ul>
+<p>where the expectation is taken over all possible <span class="math inline">S^{tr} \quad</span> and <span class="math inline">S^{est}</span>.</p>
 </section>
 <section id="the-honest-target" class="slide level2">
 <h2>The Honest Target</h2>
@@ -682,7 +715,7 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 </span></p>
 <p>Assuming leaf shares between <span class="math inline">S^{tr}</span> and <span class="math inline">S^{est}</span> are approximately the same,</p>
 <p><span class="math display">
-            \hat{\mathbb{E}}\left[\mathbb{V}(\hat{\mu}(X_i;S^{est},\Pi))|i \in S^{te}\right] = \frac{1}{N^{est}}\sum\limits_{\mathcal{l} \in \Pi}S^2_{S^{tr}}(\mathcal{l})
+            \hat{\mathbb{E}}\left[\mathbb{V}(\hat{\mu}(X_i;S^{est},\Pi))|i \in S^{tr}\right] = \frac{1}{N^{est}}\sum\limits_{\mathcal{l} \in \Pi}S^2_{S^{tr}}(\mathcal{l})
 </span></p>
 </div>
 </div>
@@ -738,7 +771,7 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 </ul>
 <p><span class="math display">\begin{align*}
             &amp;\mu(w,x;\Pi) \equiv \mathbb{E}[Y_i(w)|X_i \in \mathcal{l}(x;\Pi)] \notag \\
-            &amp;\hat{\mu}(w,x;\mathcal{S},\Pi) \equiv \frac{1}{\# (\{i \in \mathcal{S}_w:X_i\in\mathcal{l}(x;\Pi)\})} \sum_{i \in \mathcal{S}_w:X_i\in\mathcal{l}(x;\Pi)}Y_i^{obs}
+            &amp;\hat{\mu}(w,x;\mathcal{S},\Pi) \equiv \frac{1}{\# (\{i \in \mathcal{S}_w:X_i\in\mathcal{l}(x;\Pi)\})} \sum_{i \in \mathcal{S}_w:X_i\in\mathcal{l}(x;\Pi)}Y_i
 \end{align*}</span></p>
 <ul>
 <li>Average causal effect “in a leaf” and its estimator</li>
@@ -748,8 +781,8 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
         &amp;\hat{\tau}(x;\mathcal{S},\Pi) \equiv \hat{\mu}(1,x;\mathcal{S},\Pi)-\hat{\mu}(0,x;\mathcal{S},\Pi) \notag
 \end{align*}</span></p>
 </section>
-<section id="cart-for-heterogeneous-treatment-effects" class="slide level2">
-<h2>CART For Heterogeneous Treatment Effects?</h2>
+<section id="cart-for-hte-estimation" class="slide level2">
+<h2>CART For HTE Estimation?</h2>
 <div class="panel-tabset">
 <ul id="tabset-5" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-5-1">Model</a></li><li><a href="#tabset-5-2">Criterion</a></li></ul>
 <div class="tab-content">
@@ -794,11 +827,11 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <li>Under our framework, estimate <span class="math inline">-MSE_\tau</span> with <span class="math inline">-\hat{MSE}_\tau</span>(unbiased)</li>
 </ul></li>
 </ul>
-<div style="margin-bottom: 0.4em;">
+<div style="margin-bottom: 0.5em;">
 
 </div>
 <ul>
-<li>Problem 2: NOT Honest (e.g.&nbsp;<span class="math inline">\overline{\tau_L}-\overline{\tau_R}</span> with condition <span class="math inline">\geq c</span> is biased)
+<li>Problem 2: biased <span class="math inline">\overline{\tau_L}</span> and <span class="math inline">\overline{\tau_R}</span> (e.g.&nbsp;<span class="math inline">\overline{\tau_L}-\overline{\tau_R}</span> with condition <span class="math inline">\geq c</span> is biased)
 <ul>
 <li>Split sample; one to build tree, the other to estimate effects.</li>
 </ul></li>
@@ -808,10 +841,10 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 
 </div>
 <ul>
-<li>NEW criterion</li>
+<li>NEW criterion by Honest Algorithm</li>
 </ul>
 <p><span class="math display">\begin{align*}
-        -\mathbb{E}_{\mathcal{S}^{\color{red}{te}}, \mathcal{S}^{\color{red}{est}}}[\sum_{i\in \mathcal{S}^{\color{red}{te}}}(\tau_i-\hat{\tau}(X_i;\mathcal{S}^{\color{red}est}))^2]
+        -\mathbb{E}_{\mathcal{S}^{\color{red}{tr}}, \mathcal{S}^{\color{red}{est}}}[\sum_{i\in \mathcal{S}^{\color{red}{tr}}}(\tau_i-\hat{\tau}(X_i;\mathcal{S}^{\color{red}est}))^2]
 \end{align*}</span></p>
 </div>
 </div>
@@ -820,26 +853,25 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <h2>New Criterion for Honest Causal Tree</h2>
 <p>Given <span class="math inline">\Pi</span>,</p>
 <p><span class="math display">\begin{align*}
-        \text{MSE}_{\tau}(\mathcal{S^{{\color{red}\text{te}}}},\mathcal{S^{{\color{red}\text{est}}}}) &amp;\equiv \frac{1}{\text{N}^{\color{red}\text{te}}}\sum_{i\in \mathcal{S^{{\color{red}\text{te}}}}}[(\tau_i-\hat{\tau}(X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi))^2 -\tau_i^2 ]\notag \\
-        &amp;= \frac{1}{\text{N}^{\color{red}\text{te}}}\sum_{i\in \mathcal{S^{{\color{red}\text{te}}}}}[-2\tau_i\cdot \hat{\tau}(X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi)+\hat{\tau}^2 (X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi)] \\
-        EMSE &amp;=\mathbb{E}_{\mathcal{S}^{\color{red}{te}}, \mathcal{S}^{\color{red}{est}}}[\sum_{i\in \mathcal{S}^{\color{red}{te}}}((\tau_i-\hat{\tau}(X_i;\mathcal{S}^{\color{red}est}))^2-\tau_i^2)] \\
-        &amp;= \mathbb{V}_{\mathcal{S}^{\text{est}}, X_i}[\hat{\tau}(X_i; \mathcal{S}^{\text{est}},\Pi)]-\mathbb{E}_{X_i}[\tau^2(X_i;\Pi)]
+        -\text{MSE}_{\tau}(\mathcal{S^{{\color{red}\text{tr}}}},\mathcal{S^{{\color{red}\text{est}}}}) &amp;\equiv -\frac{1}{\text{N}^{\color{red}\text{tr}}}\sum_{i\in \mathcal{S^{{\color{red}\text{tr}}}}}[(\tau_i-\hat{\tau}(X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi))^2 -\tau_i^2 ]\notag \\
+        &amp;= -\frac{1}{\text{N}^{\color{red}\text{tr}}}\sum_{i\in \mathcal{S^{{\color{red}\text{tr}}}}}[-2\tau_i\cdot \hat{\tau}(X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi)+\hat{\tau}^2 (X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi)] \\
+        -EMSE &amp;= - \mathbb{E}_{\mathcal{S}^{\color{red}{tr}}, \mathcal{S}^{\color{red}{est}}}[\sum_{i\in \mathcal{S}^{\color{red}{tr}}}((\tau_i-\hat{\tau}(X_i;\mathcal{S}^{\color{red}est}))^2-\tau_i^2)] \\
+        &amp;= \mathbb{E}_{X_i}[\tau^2(X_i;\Pi)] -\mathbb{V}_{\mathcal{S}^{\text{est}}, X_i}[\hat{\tau}(X_i; \mathcal{S}^{\text{est}},\Pi)]
 \end{align*}</span></p>
 <ul>
-<li><p>Again, the last equality holds by the “honesty” that <span class="math inline">\mathcal{S}^{est}\perp \Pi</span></p></li>
-<li><p>Why <span class="math inline">\mathbb{V}[\hat{\tau}]</span> in <span class="math inline">EMSE</span>?</p>
-<p>We care not only about this sample but also about other possible samples, so <span class="math inline">\mathbb{V}[\hat{\tau}]</span> is taken into account.</p></li>
+<li>Again, the last equality holds by the “honesty” that <span class="math inline">\mathcal{S}^{est}\perp \Pi</span></li>
 </ul>
 </section>
 <section id="estimating-the-criterion" class="slide level2">
 <h2>Estimating the Criterion</h2>
 <ul>
-<li><p>In-sample goodness-of-fit measure <span class="math inline">-\hat{EMSE}_{\tau}(\mathcal{S^\text{tr}},\Pi)</span> <span class="math display">\begin{align*}
-       \equiv
+<li><p>In-sample goodness-of-fit measure: <span class="math inline">-\hat{EMSE}_{\tau}(\mathcal{S^\text{tr}},\Pi)</span> <span class="math display">\begin{align*}
+   &amp;\equiv \hat{\mathbb{E}}_{X_i}[\tau^2(X_i;\Pi)] - \hat{\mathbb{V}}_{\mathcal{S}^{est},X_i}[\hat{\tau}(X_i;\mathcal{S}^{est},\Pi)] \\
+       &amp; \equiv
       \frac{1}{\text{N}^\text{tr}} \sum_{i\in\mathcal{S^\text{tr}}} \hat{\tau}^2(X_i;\mathcal{S}^{tr},\Pi)
       -\biggl(\frac{2}{\text{N}^{\text{tr}}}\biggr)\sum_{\ell \in \Pi}\biggl(\frac{S^2_{\mathcal{S}^\text{tr}_\text{treat}}(\ell)}{p}+\frac{S^2_{\mathcal{S}^\text{tr}_\text{control}}(\ell)}{1-p}\biggr)
 \end{align*}</span> where <span class="math inline">p=N^\text{tr}_\text{treat}/N^\text{tr}</span></p></li>
-<li><p>Note that <span class="math inline">S^2</span>’s are the sample variances of <span style="color: blue;">mean estimates</span>, <span style="color: red;">NOT</span> the treatment effects.</p></li>
+<li><p>Note that <span class="math inline">S^2</span>’s are the sample variances of mean estimates, <strong>NOT</strong> the treatment effects.</p></li>
 </ul>
 </section>
 <section id="interpretation-of-the-criterion" class="slide level2">
@@ -878,6 +910,7 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <h2>Alternative Methods for Constructing Trees</h2>
 <h3 id="fit-based-trees-f">(1) Fit-based Trees (F)</h3>
 <ul>
+<li><p>Zeileis et al., (2008)</p></li>
 <li><p>Regressors: intercept(average) + <span style="color: red;"> dummy variable for treatment</span></p></li>
 <li><p>goodness-of-fit</p></li>
 </ul>
@@ -898,7 +931,8 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 <h2>Alternative Methods for Constructing Trees</h2>
 <h3 id="squared-t-statistic-trees-ts">(2) Squared T-statistic Trees (TS)</h3>
 <ul>
-<li>Split Rule: split if <span class="math inline">({\color{red}\overline{\tau}_L-\overline{\tau}_R})^2</span> is sufficiently large
+<li><p>Su et al., (2009)</p></li>
+<li><p>Split Rule: split if <span class="math inline">({\color{red}\overline{\tau}_L-\overline{\tau}_R})^2</span> is sufficiently large</p>
 <ul>
 <li><strong>similar to two-sample t test</strong></li>
 </ul></li>
@@ -1072,13 +1106,27 @@ Y_i = W_iY_i(1) + (1-W_i)Y_i(0)
 </section>
 <section id="resources" class="slide level2">
 <h2>Resources</h2>
-<div class="button-container">
-<pre><code>&lt;a href="https://example1.com"&gt;Link 1&lt;/a&gt;
-&lt;a href="https://example2.com"&gt;Link 2&lt;/a&gt;
-&lt;a href="https://example3.com"&gt;Link 3&lt;/a&gt;
-&lt;a href="https://example4.com"&gt;Link 4&lt;/a&gt;
-&lt;a href="https://example5.com"&gt;Link 5&lt;/a&gt;</code></pre>
+<ul>
+<li><a href="/ref/athey_and_imbens_2016(proof).pdf" class="btn btn-primary">Proofs and Detailed Explanation of the Paper</a> - oriented by Wooyong Park and Jeongwoo Yang</li>
+</ul>
+<div style="margin-bottom: 0.3em;">
+
 </div>
+<ul>
+<li><a href="https://wooyongp.github.io/rpart-jsc25_1/ref/CART_practice.pdf" class="btn btn-primary">CART coding exercise</a> - oriented by Joonwoo Shin</li>
+</ul>
+<div style="margin-bottom: 0.3em;">
+
+</div>
+<ul>
+<li><a href="https://wooyongp.github.io/rpart-jsc25_1/ref/honest_practice.html" class="btn btn-primary">Honest Tree coding exercise</a> - oriented by Jeongwoo Yang</li>
+</ul>
+<div style="margin-bottom: 0.3em;">
+
+</div>
+<ul>
+<li><a href="https://wooyongp.github.io/rpart-jsc25_1/ref/honest_practice.html" class="btn btn-primary">Examples of Applied Micro papers using the causal tree + generalized random forests</a> - oriented by Minseo Seok</li>
+</ul>
 </section></section>
 <section>
 <section id="appendix" class="title-slide slide level1 center">

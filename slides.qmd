@@ -180,7 +180,7 @@ ggplot(kyphosis, aes(x = Start, y = Age)) +
 
 ![Figure from Beaulac and Rosenthal(2019)](figures/decision_tree_illustration.png)
 
-### Criterion
+### Details (1)
 
 For regression trees, the criterion for choosing covariate and a cutoff pair is the MSE.
 
@@ -189,7 +189,7 @@ For regression trees, the criterion for choosing covariate and a cutoff pair is 
 2. Within $S^{tr}$, choose $X_i$ and a cutoff $k$ that minimizes MSE:
 
 $$
-\underbrace{\sum_{i \in L}(y_i-\overline{y}_L)^2}_{\text{left-side MSE}} + \underbrace{\sum_{i \in R}(y_i-\overline{y}_R)^2}_{\text{right-side MSE}}
+MSE = \underbrace{\sum_{i \in L}(y_i-\hat{y}_L)^2}_{\text{left-side MSE}} + \underbrace{\sum_{i \in R}(y_i-\hat{y}_R)^2}_{\text{right-side MSE}}
 $$
 
 3. Repeat this process.
@@ -200,7 +200,20 @@ $$
 \hat{y}(\text{leaf}) = \overline{y}_{(\text{leaf})}
 $$
 
-5. Evaluate the prediction performance in $S^{te}$.
+
+### Details (2)
+
+5. The resulting MSE of the model given a data $S$ and partition $\Pi$ would be
+$$
+MSE_\mu(S, S^{tr}, \Pi) = \frac{1}{\#(S)} \sum_{i \in S} \biggl[Y_i -\hat{\mu}(X_i; S^{tr}, \Pi)\biggr]^2
+$$
+
+In this paper, we use the **adjusted** MSE:
+$$
+MSE_\mu(S, S^{tr}, \Pi) = \frac{1}{\#(S)} \sum_{i \in S} \biggl[(Y_i -\hat{\mu}(X_i; S^{tr}, \Pi))^2- {\color{blue}Y_i^2}\biggr]
+$$
+
+which does not affect the splitting mechanism but makes the algebra more interpretable.
 
 ::::
 
@@ -221,10 +234,10 @@ library(rpart)
 library(ggplot2)
 library(rpart.plot)
 
-set.seed(123)
+set.seed(456)
 
 # simulate data and apply CART with two features
-n <- 100
+n <- 10000
 
 x1 <- runif(n, 0, 10)
 x2 <- runif(n, -5, 5)
@@ -232,7 +245,7 @@ y <- 1 + 2 * x1 + 3 * x2 * as.numeric(x2>0) + rnorm(n, 0, 1)  # True relationshi
     
 # Fit regression tree
 data <- data.frame(x1 = x1, x2 = x2, y = y)
-tree_model <- rpart(y ~ x1 + x2, data = data, control = rpart.control(cp = 0.01))
+tree_model <- rpart(y ~ x1 + x2, data = data, control = rpart.control(cp = 0.04))
     
 # Pruning
 best <- tree_model$cptable[which.min(tree_model$cptable[,"xerror"]),"CP"]
@@ -253,7 +266,7 @@ rpart.plot(pruned_tree, digits=3)
 library(tidyverse)
 
 # Make a data and compute the sample mean in each leaf
-n <- 10000000
+n <- 100000
 
 x1 <- runif(n, 0, 10)
 x2 <- runif(n, -5, 5)
@@ -261,26 +274,17 @@ y <- 1 + 2 * x1 + 3 * x2 * as.numeric(x2>0) + rnorm(n, 0, 1)  # True relationshi
 
 data <- tibble(x1 = x1, x2 = x2, y = y) |> 
     mutate(leaf = case_when(
-        x1<2.4 & x2<1.34 ~ "1",
-        x1>2.4 & x2<1.34 & x1<4.16 ~ "2",
-        x1<4.16 & x2>=1.34 ~ "3",
-        x1<6.84 & x1>=4.16 & x2<3.61 ~ "4",
-        x1<6.84 & x2>=3.61 ~ "5",
-        x1>=6.84 & x2<0.237 ~ "6",
-        x1>=6.84 & x2>=0.237 & x2<2.39 ~ "7",
-        x1>=6.84 & x2>=2.39 ~ "8"
+        x1<2.62 & x2<1.77 ~ "1",
+        x1<5.23 & x1>=2.62 & x2<1.77 ~ "2",
+        x1<5.23 & x2>=1.77 ~ "3",
+        x1>=5.23 & x2<1.81 ~ "4",
+        x1>=5.23 & x2>=1.81 ~ "5"
     ))
 
 df <- data |> group_by(leaf) |> summarize(unbiased_mean = mean(y)) |> 
-    mutate(tree_mean = c(4.35, 8.26, 11.6, 12.94, 19.85, 17.84, 22.15, 29.02))
+    mutate(tree_mean = c(4.27, 9.51, 16.5, 16.9, 26.5))
 
-ggplot(df, aes(as.numeric(leaf))) +
-    geom_point(aes(y=unbiased_mean, color='ub')) +
-    geom_point(aes(y=tree_mean, color = 'b')) +
-    scale_x_continuous(labels = 1:8, breaks=1:8) +
-    scale_color_manual(name =NULL,  values=c("ub" = "red", "b" = "blue"), labels = c("tree", "true DGP")) +
-    labs(title = "CART mean vs true mean", x="leaf", y="mean") +
-    theme_bw()
+kableExtra::kable(df)
 
 ```
 
@@ -288,6 +292,18 @@ ggplot(df, aes(as.numeric(leaf))) +
 
 
 # Honest Inference for Outcome Averages
+
+## Notations for predicted outcomes
+
+- Given a partition $\Pi$, conditional mean is given by:
+    \begin{equation*}
+        \mu(x;\Pi) = \mathbb{E}\left[Y_i | X_i \in \textit{l}(x;\Pi)\right]
+    \end{equation*}
+
+- \item Given a sample $\mathcal{S}$ we estimate conditional mean is given by 
+    \begin{equation*}
+        \hat{\mu}(x;\mathcal{S},\Pi) = \frac{1}{\#(i \in \mathcal{S} : X_i \in \textit{l}(x;\Pi))}\sum\limits_{i \in \mathcal{S}:X_i \in \textit{l}(x;\Pi)}Y_i
+    \end{equation*}
 
 ## CART vs Honest
 
@@ -302,33 +318,60 @@ $$
 ### Honest
 
 $$
-\hat{\mu}(x;S^{est},\pi(S^{tr}))=\frac{1}{\#(i \in S^{est} : X_i \in \textit{l}(x;\pi(S^{tr})))}\sum\limits_{i\in S^{est}:X_i \in \textit{l}(x;\pi(S^{tr}))}Y_i
+\hat{\mu}(x;{\color{red}S^{est}},\pi(S^{tr}))=\frac{1}{\#(i \in {\color{red}S^{est}} : X_i \in \textit{l}(x;\pi(S^{tr})))}\sum\limits_{i\in {\color{red}S^{est}}:X_i \in \textit{l}(x;\pi(S^{tr}))}Y_i
 $$
 
 
 
 ## Limitations of CART
-- We cannot simply use CART to estimate HTE.
-    + Potential bias in the leaf estimates
-    + does not consider variance in tree splitting
+
+### We cannot simply use CART to estimate HTE.
+
+- Potential bias in the leaf estimates
+- does not consider variance in tree splitting
 
 
-::: {.fragment .custom .fadein-gray}
+## Limitations of CART
 
- Suppose the feature space is $\quad \mathbb{X} = \{L,R\}$
+Suppose $Y_i \in \mathbb{R}, \quad X_i \in \{L,R\}$
 
-Recursive partitioning simply does the following:
+- Only two possible partitions : 
+    \begin{equation*}
+        \Pi = \begin{cases}
+            \{L,R\} & (\text{no split}) \\
+            \{ \{L\}, \{R\} \} & (\text{split})
+        \end{cases}
+    \end{equation*}
+
+- To build Regression tree, we compare
+
+    \begin{equation*}
+    \begin{aligned}
+        \frac{1}{\#(S^{tr})}\sum\limits_{i: X_i \in S^{tr}}(Y_i-\bar{Y})^2 \quad\text{and}\qquad \qquad \qquad \qquad \qquad \qquad \qquad  \\
+         \frac{1}{\#(i:X_i\in L)}\sum\limits_{i: X_i=L}(Y_i-\bar{Y_L})^2+\frac{1}{\#(i: X_i \in R)}\sum\limits_{i:X_i = R}(Y_i-\bar{Y_R})^2
+     \end{aligned}
+    \end{equation*}
+
+
+
+## Limitations of CART
+
+- This is equivalent to
 
 \begin{align*}
     \pi(S)= \begin{cases}
-    \quad \{ \{L,R \} \} & \text{if} \quad \bar{Y}_L -\bar{Y}_R \leq c \\
-    \quad \{ \{L\}, \{R \} \} & \text{ifx} \quad \bar{Y}_L -\bar{Y}_R > c
+    \quad \{ \{L,R \} \} & \text{if} \quad |\bar{Y}_L -\bar{Y}_R| \leq c \\
+    \quad \{ \{L\}, \{R \} \} & \text{if} \quad |\bar{Y}_L -\bar{Y}_R| > c
     \end{cases}
 \end{align*}
 
-If we condition on $\bar{Y}_L -\bar{Y}_R >c$, we expect bias.
+If we condition on $\bar{Y}_L -\bar{Y}_R >c$, we expect bias:
 
-:::
+$$
+\mathbb{E}(\overline{Y}_k) \neq  \mathbb{E}(\overline{Y}_k| \left|\overline{Y}_L -\overline{Y}_R \right| > c)
+$$
+
+
 
 ## Limitations of CART
 ### Example
@@ -337,7 +380,7 @@ If we condition on $\bar{Y}_L -\bar{Y}_R >c$, we expect bias.
 ::::{.panel-tabset}
 
 
-### Training 1
+### Training
 
 :::: { .columns}
 
@@ -378,39 +421,6 @@ ggplot(train1, aes(x = Start, y = Age)) +
 
 ::::
 
-### Training 2
-
-:::: { .columns}
-
-::: { .column width="70%"}
-
-```{r}
-#| echo: true
-#| output: true
-#| message: false
-
-
-
-fit = rpart(Kyphosis ~ Start + Age, data = train2)
-
-ggplot(train2, aes(x = Start, y = Age)) +
-  geom_parttree(data = fit, alpha = 0.1, aes(fill = Kyphosis)) + # <-- key layer
-  geom_point(aes(col = Kyphosis)) +
-  labs(
-    x = "No. of topmost vertebra operated on", y = "Patient age (months)",
-    caption = "Note: Points denote observations. Shading denotes model predictions."
-    ) +
-  theme_minimal()
-```
-
-:::
-
-:::{ .column width="30%"}
-
-:::
-
-::::
-
 ### Estimation Set
 
 :::: { .columns}
@@ -428,6 +438,12 @@ fit = rpart(Kyphosis ~ Start + Age, data = kyphosis)
 ggplot(kyphosis, aes(x = Start, y = Age)) +
 #   geom_parttree(data = fit, alpha = 0.1, aes(fill = Kyphosis)) + # <-- key layer
   geom_jitter(aes(col = Kyphosis)) +
+  geom_point(aes(x=10, y=50), color = "#F8766D") +
+  geom_point(aes(x=3, y=58), color = "#F8766D") +
+  geom_point(aes(x=12.3, y=210), color = "#F8766D") +
+  geom_point(aes(x=12.2, y=200), color = "#F8766D") +
+  geom_point(aes(x=4, y=65), color = "#F8766D") +
+  geom_point(aes(x=4.5, y=100), color = "#F8766D") +
   geom_segment(aes(x = 0, xend = 12.5, y = 35, yend = 35), linetype="dashed") +
   geom_vline(aes(xintercept=12.5), linetype="dashed") +
   labs(
@@ -454,25 +470,19 @@ ggplot(kyphosis, aes(x = Start, y = Age)) +
 ## The Honest Criterion
 
 \begin{align*}
-        \text{MSE}_{\mu}(\underbrace{S^{te}}_\text{test set},\underbrace{S^{est}}_\text{estimation set},\Pi) &= \frac{1}{\#(S^{te})}\sum\limits_{i \in S^{te}}\left[(Y_i - \hat{\mu}(X_i;S^{\color{red} est},\Pi))^2{\color{blue} -Y_i^2}\right]
+        \text{MSE}_{\mu}(\underbrace{S^{tr}}_\text{training set},\underbrace{S^{est}}_\text{estimation set},\Pi) &= \frac{1}{\#(S^{tr})}\sum\limits_{i \in S^{tr}}\left[(Y_i - \hat{\mu}(X_i;{\color{red}S^{ est}},\Pi))^2-Y_i^2\right]
 \end{align*}
 
 <div style="margin-bottom: 0.4em;"></div>
 
 \begin{align*}
-        \text{EMSE}_\mu &= \mathbb{E}_{S^{te},S^{est}}\left[\text{MSE}_\mu(S^{te},S^{est},\Pi)\right]
+        \text{EMSE}_\mu &= \mathbb{E}_{S^{tr},S^{est}}\left[\text{MSE}_\mu(S^{tr},S^{est},\Pi)\right]
 \end{align*}
 
 <div style="margin-bottom: 0.4em;"></div>
 
-Then, our goal is to find $\pi$ that would maximize the **Honest Criterion**:
-\begin{equation*}
-        -\mathbb{E}_{S^{te},S^{est},S^{tr}}\biggl[MSE_\mu\bigl(S^{te},S^{est},\pi(S^{tr})\bigr)\biggr]
-\end{equation*}
+where the expectation is taken over all possible $S^{tr} \quad$ and $S^{est}$.
 
-- $S^{te}$ : We take expectation over the test set
-- $S^{tr}$ : Tree is built out of the training set
-- $S^{est}$ : $\hat{\mu}$ is computed in the estimation set
 
 
 ## The Honest Target
@@ -512,7 +522,7 @@ $$
 Assuming leaf shares between $S^{tr}$ and $S^{est}$ are approximately the same,
 
 $$
-            \hat{\mathbb{E}}\left[\mathbb{V}(\hat{\mu}(X_i;S^{est},\Pi))|i \in S^{te}\right] = \frac{1}{N^{est}}\sum\limits_{\mathcal{l} \in \Pi}S^2_{S^{tr}}(\mathcal{l})
+            \hat{\mathbb{E}}\left[\mathbb{V}(\hat{\mu}(X_i;S^{est},\Pi))|i \in S^{tr}\right] = \frac{1}{N^{est}}\sum\limits_{\mathcal{l} \in \Pi}S^2_{S^{tr}}(\mathcal{l})
 $$
 
 :::
@@ -569,7 +579,7 @@ The two terms combined, we obtain an unbiased estimator for honest target:
 
 \begin{align*}
             &\mu(w,x;\Pi) \equiv \mathbb{E}[Y_i(w)|X_i \in \mathcal{l}(x;\Pi)] \notag \\
-            &\hat{\mu}(w,x;\mathcal{S},\Pi) \equiv \frac{1}{\# (\{i \in \mathcal{S}_w:X_i\in\mathcal{l}(x;\Pi)\})} \sum_{i \in \mathcal{S}_w:X_i\in\mathcal{l}(x;\Pi)}Y_i^{obs}
+            &\hat{\mu}(w,x;\mathcal{S},\Pi) \equiv \frac{1}{\# (\{i \in \mathcal{S}_w:X_i\in\mathcal{l}(x;\Pi)\})} \sum_{i \in \mathcal{S}_w:X_i\in\mathcal{l}(x;\Pi)}Y_i
 \end{align*}
 
 - Average causal effect "in a leaf" and its estimator
@@ -580,7 +590,7 @@ The two terms combined, we obtain an unbiased estimator for honest target:
 \end{align*}
 
 
-## CART For Heterogeneous Treatment Effects?
+## CART For HTE Estimation?
 
 
 ::: {.panel-tabset}
@@ -619,19 +629,19 @@ $$
 - Problem 1: $\tau_i$'s are unobservable
     * Under our framework, estimate $-MSE_\tau$ with $-\hat{MSE}_\tau$(unbiased)
 
-<div style="margin-bottom: 0.4em;"></div>
+<div style="margin-bottom: 0.5em;"></div>
 
-- Problem 2: NOT Honest (e.g.  $\overline{\tau_L}-\overline{\tau_R}$  with condition $\geq c$ is biased)
+- Problem 2: biased $\overline{\tau_L}$ and $\overline{\tau_R}$ (e.g.  $\overline{\tau_L}-\overline{\tau_R}$  with condition $\geq c$ is biased)
     * Split sample; one to build tree, the other to estimate effects.
 
 ::: {.fragment}
 
 <div style="margin-bottom: 0.4em;"></div>
 
-- NEW criterion
+- NEW criterion by Honest Algorithm
 
 \begin{align*}
-        -\mathbb{E}_{\mathcal{S}^{\color{red}{te}}, \mathcal{S}^{\color{red}{est}}}[\sum_{i\in \mathcal{S}^{\color{red}{te}}}(\tau_i-\hat{\tau}(X_i;\mathcal{S}^{\color{red}est}))^2]
+        -\mathbb{E}_{\mathcal{S}^{\color{red}{tr}}, \mathcal{S}^{\color{red}{est}}}[\sum_{i\in \mathcal{S}^{\color{red}{tr}}}(\tau_i-\hat{\tau}(X_i;\mathcal{S}^{\color{red}est}))^2]
 \end{align*}
 
 :::
@@ -643,30 +653,27 @@ $$
 Given $\Pi$,
 
 \begin{align*}
-        \text{MSE}_{\tau}(\mathcal{S^{{\color{red}\text{te}}}},\mathcal{S^{{\color{red}\text{est}}}}) &\equiv \frac{1}{\text{N}^{\color{red}\text{te}}}\sum_{i\in \mathcal{S^{{\color{red}\text{te}}}}}[(\tau_i-\hat{\tau}(X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi))^2 -\tau_i^2 ]\notag \\
-        &= \frac{1}{\text{N}^{\color{red}\text{te}}}\sum_{i\in \mathcal{S^{{\color{red}\text{te}}}}}[-2\tau_i\cdot \hat{\tau}(X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi)+\hat{\tau}^2 (X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi)] \\
-        EMSE &=\mathbb{E}_{\mathcal{S}^{\color{red}{te}}, \mathcal{S}^{\color{red}{est}}}[\sum_{i\in \mathcal{S}^{\color{red}{te}}}((\tau_i-\hat{\tau}(X_i;\mathcal{S}^{\color{red}est}))^2-\tau_i^2)] \\
-        &= \mathbb{V}_{\mathcal{S}^{\text{est}}, X_i}[\hat{\tau}(X_i; \mathcal{S}^{\text{est}},\Pi)]-\mathbb{E}_{X_i}[\tau^2(X_i;\Pi)]
+        -\text{MSE}_{\tau}(\mathcal{S^{{\color{red}\text{tr}}}},\mathcal{S^{{\color{red}\text{est}}}}) &\equiv -\frac{1}{\text{N}^{\color{red}\text{tr}}}\sum_{i\in \mathcal{S^{{\color{red}\text{tr}}}}}[(\tau_i-\hat{\tau}(X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi))^2 -\tau_i^2 ]\notag \\
+        &= -\frac{1}{\text{N}^{\color{red}\text{tr}}}\sum_{i\in \mathcal{S^{{\color{red}\text{tr}}}}}[-2\tau_i\cdot \hat{\tau}(X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi)+\hat{\tau}^2 (X_i;\mathcal{S^{{\color{red}\text{est}}}},\Pi)] \\
+        -EMSE &= - \mathbb{E}_{\mathcal{S}^{\color{red}{tr}}, \mathcal{S}^{\color{red}{est}}}[\sum_{i\in \mathcal{S}^{\color{red}{tr}}}((\tau_i-\hat{\tau}(X_i;\mathcal{S}^{\color{red}est}))^2-\tau_i^2)] \\
+        &= \mathbb{E}_{X_i}[\tau^2(X_i;\Pi)] -\mathbb{V}_{\mathcal{S}^{\text{est}}, X_i}[\hat{\tau}(X_i; \mathcal{S}^{\text{est}},\Pi)]
 \end{align*}
 
 
 - Again, the last equality holds by the "honesty" that $\mathcal{S}^{est}\perp \Pi$
 
-- Why $\mathbb{V}[\hat{\tau}]$ in $EMSE$? 
-
-    We care not only about this sample but also about other possible samples, so $\mathbb{V}[\hat{\tau}]$ is taken into account.
-    
 ## Estimating the Criterion
 
-- In-sample goodness-of-fit measure $-\hat{EMSE}_{\tau}(\mathcal{S^\text{tr}},\Pi)$
+- In-sample goodness-of-fit measure: $-\hat{EMSE}_{\tau}(\mathcal{S^\text{tr}},\Pi)$
     \begin{align*}
-         \equiv 
+     &\equiv \hat{\mathbb{E}}_{X_i}[\tau^2(X_i;\Pi)] - \hat{\mathbb{V}}_{\mathcal{S}^{est},X_i}[\hat{\tau}(X_i;\mathcal{S}^{est},\Pi)] \\
+         & \equiv 
         \frac{1}{\text{N}^\text{tr}} \sum_{i\in\mathcal{S^\text{tr}}} \hat{\tau}^2(X_i;\mathcal{S}^{tr},\Pi)
         -\biggl(\frac{2}{\text{N}^{\text{tr}}}\biggr)\sum_{\ell \in \Pi}\biggl(\frac{S^2_{\mathcal{S}^\text{tr}_\text{treat}}(\ell)}{p}+\frac{S^2_{\mathcal{S}^\text{tr}_\text{control}}(\ell)}{1-p}\biggr)
 \end{align*}
 where $p=N^\text{tr}_\text{treat}/N^\text{tr}$
 
-- Note that $S^2$'s are the sample variances of <span style="color: blue;">mean estimates</span>, <span style="color: red;">NOT</span> the treatment effects.
+- Note that $S^2$'s are the sample variances of mean estimates, **NOT** the treatment effects.
 
 
 ## Interpretation of the Criterion
@@ -699,6 +706,8 @@ where $p=N^\text{tr}_\text{treat}/N^\text{tr}$
 
 ### (1) Fit-based Trees (F)
 
+- Zeileis et al., (2008)
+
 - Regressors: intercept(average) + <span style="color: red;"> dummy variable for treatment</span>
 
 -  goodness-of-fit 
@@ -721,6 +730,8 @@ $$
 ## Alternative Methods for Constructing Trees
 
 ### (2) Squared T-statistic Trees (TS)
+
+- Su et al., (2009)
 
 - Split Rule:  split if $({\color{red}\overline{\tau}_L-\overline{\tau}_R})^2$ is sufficiently large
     + **similar to two-sample t test**
@@ -874,15 +885,20 @@ We have three different setups:
 
 ## Resources
 
+- <a href="/ref/athey_and_imbens_2016(proof).pdf" class="btn btn-primary">Proofs and Detailed Explanation of the Paper</a>  - oriented by Wooyong Park and Jeongwoo Yang
 
+<div style="margin-bottom: 0.3em;"></div>
 
-  <div class="button-container">
-    <a href="https://example1.com">Link 1</a>
-    <a href="https://example2.com">Link 2</a>
-    <a href="https://example3.com">Link 3</a>
-    <a href="https://example4.com">Link 4</a>
-    <a href="https://example5.com">Link 5</a>
-  </div>
+- <a href="https://wooyongp.github.io/rpart-jsc25_1/ref/CART_practice.pdf" class="btn btn-primary">CART coding exercise</a>  - oriented by Joonwoo Shin
+
+<div style="margin-bottom: 0.3em;"></div>
+
+- <a href="https://wooyongp.github.io/rpart-jsc25_1/ref/honest_practice.html" class="btn btn-primary">Honest Tree coding exercise</a>  - oriented by Jeongwoo Yang
+
+<div style="margin-bottom: 0.3em;"></div>
+
+- <a href="https://wooyongp.github.io/rpart-jsc25_1/ref/honest_practice.html" class="btn btn-primary">Examples of Applied Micro papers using the causal tree + generalized random forests</a>  - oriented by Minseo Seok
+
 
 
 # Appendix
