@@ -885,7 +885,7 @@ We have three different setups:
 
 ## Resources
 
-- <a href="/ref/athey_and_imbens_2016(proof).pdf" class="btn btn-primary">Proofs and Detailed Explanation of the Paper</a>  - oriented by Wooyong Park and Jeongwoo Yang
+- <a href="https://wooyongp.github.io/rpart-jsc25_1/ref/athey_and_imbens_2016(proof).pdf" class="btn btn-primary">Proofs and Detailed Explanation of the Paper</a>  - oriented by Wooyong Park and Jeongwoo Yang
 
 <div style="margin-bottom: 0.3em;"></div>
 
