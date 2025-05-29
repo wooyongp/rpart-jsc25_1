@@ -1,7 +1,7 @@
 ---
 title: Recursive Partitioning <br> for Heterogeneous Causal Effects
 subtitle: Susan Athey and Guido Imbens(2016)
-author: Wooyong Park, Joonwoo Shin, Jeongwoo Yang, Minseo Seok
+author: Wooyong Park, Joonwoo Shin, Jeongwoo Yang, Minseo Seok<br><br> URL - [wooyongp.github.io/rpart-jsc25_1/slides.html](wooyongp.github.io/rpart-jsc25_1/slides.html)
 format: coeos-revealjs
 ---
 
