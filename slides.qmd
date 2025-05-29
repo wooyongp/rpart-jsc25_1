@@ -321,22 +321,6 @@ kableExtra::kable(df)
         \hat{\mu}(x;\mathcal{S},\Pi) = \frac{1}{\#(i \in \mathcal{S} : X_i \in \textit{l}(x;\Pi))}\sum\limits_{i \in \mathcal{S}:X_i \in \textit{l}(x;\Pi)}Y_i
     \end{equation*}
 
-## CART vs Honest
-
-Honest Estimation uses two different samples : $S^{tr}$ for splitting and $S^{est}$ for estimation.
-
-### CART
-
-$$ 
-\hat{\mu}(x;S^{tr},\pi(S^{tr}))=\frac{1}{\#(i \in S^{tr} : X_i \in \textit{l}(x;\pi(S^{tr})))}\sum\limits_{i\in S^{tr}:X_i \in \textit{l}(x;\pi(S^{tr}))}Y_i 
-$$
-
-### Honest
-
-$$
-\hat{\mu}(x;{\color{red}S^{est}},\pi(S^{tr}))=\frac{1}{\#(i \in {\color{red}S^{est}} : X_i \in \textit{l}(x;\pi(S^{tr})))}\sum\limits_{i\in {\color{red}S^{est}}:X_i \in \textit{l}(x;\pi(S^{tr}))}Y_i
-$$
-
 
 
 ## Limitations of CART
@@ -361,12 +345,10 @@ Suppose $Y_i \in \mathbb{R}, \quad X_i \in \{L,R\}$
 
 - To build Regression tree, we compare
 
-    \begin{equation*}
-    \begin{aligned}
-        \frac{1}{\#(S^{tr})}\sum\limits_{i: X_i \in S^{tr}}(Y_i-\bar{Y})^2 \quad\text{and}\qquad \qquad \qquad \qquad \qquad \qquad \qquad  \\
-         \frac{1}{\#(i:X_i\in L)}\sum\limits_{i: X_i=L}(Y_i-\bar{Y_L})^2+\frac{1}{\#(i: X_i \in R)}\sum\limits_{i:X_i = R}(Y_i-\bar{Y_R})^2
-     \end{aligned}
-    \end{equation*}
+\begin{align*}
+        &\frac{1}{\#(S^{tr})}\sum\limits_{i: X_i \in S^{tr}}(Y_i-\bar{Y})^2 \quad\text{and}\qquad \qquad   \\
+        &\frac{1}{\#(S^{tr})}\biggl[\sum\limits_{i: X_i=L}(Y_i-\bar{Y_L})^2+\sum\limits_{i:X_i = R}(Y_i-\bar{Y_R})^2\biggr]
+\end{align*}
 
 
 
@@ -479,6 +461,21 @@ ggplot(kyphosis, aes(x = Start, y = Age)) +
 
 ::::
 
+## CART vs Honest
+
+Honest Estimation uses two different samples : $S^{tr}$ for splitting and $S^{est}$ for estimation.
+
+### CART
+
+$$ 
+\hat{\mu}(x;S^{tr},\pi(S^{tr}))=\frac{1}{\#(i \in S^{tr} : X_i \in \textit{l}(x;\pi(S^{tr})))}\sum\limits_{i\in S^{tr}:X_i \in \textit{l}(x;\pi(S^{tr}))}Y_i 
+$$
+
+### Honest
+
+$$
+\hat{\mu}(x;{\color{red}S^{est}},\pi(S^{tr}))=\frac{1}{\#(i \in {\color{red}S^{est}} : X_i \in \textit{l}(x;\pi(S^{tr})))}\sum\limits_{i\in {\color{red}S^{est}}:X_i \in \textit{l}(x;\pi(S^{tr}))}Y_i
+$$
 
 
 

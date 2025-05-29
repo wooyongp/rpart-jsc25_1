@@ -547,18 +547,6 @@ MSE_\mu(S, S^{tr}, \Pi) = \frac{1}{\#(S)} \sum_{i \in S} \biggl[(Y_i -\hat{\mu}(
   \end{equation*}</span></p></li>
 </ul>
 </section>
-<section id="cart-vs-honest" class="slide level2">
-<h2>CART vs Honest</h2>
-<p>Honest Estimation uses two different samples : <span class="math inline">S^{tr}</span> for splitting and <span class="math inline">S^{est}</span> for estimation.</p>
-<h3 id="cart-1">CART</h3>
-<p><span class="math display">
-\hat{\mu}(x;S^{tr},\pi(S^{tr}))=\frac{1}{\#(i \in S^{tr} : X_i \in \textit{l}(x;\pi(S^{tr})))}\sum\limits_{i\in S^{tr}:X_i \in \textit{l}(x;\pi(S^{tr}))}Y_i
-</span></p>
-<h3 id="honest">Honest</h3>
-<p><span class="math display">
-\hat{\mu}(x;{\color{red}S^{est}},\pi(S^{tr}))=\frac{1}{\#(i \in {\color{red}S^{est}} : X_i \in \textit{l}(x;\pi(S^{tr})))}\sum\limits_{i\in {\color{red}S^{est}}:X_i \in \textit{l}(x;\pi(S^{tr}))}Y_i
-</span></p>
-</section>
 <section id="limitations-of-cart" class="slide level2">
 <h2>Limitations of CART</h2>
 <h3 id="we-cannot-simply-use-cart-to-estimate-hte.">We cannot simply use CART to estimate HTE.</h3>
@@ -577,14 +565,12 @@ MSE_\mu(S, S^{tr}, \Pi) = \frac{1}{\#(S)} \sum_{i \in S} \biggl[(Y_i -\hat{\mu}(
           \{ \{L\}, \{R\} \} &amp; (\text{split})
       \end{cases}
   \end{equation*}</span></p></li>
-<li><p>To build Regression tree, we compare</p>
-<p><span class="math display">\begin{equation*}
-  \begin{aligned}
-      \frac{1}{\#(S^{tr})}\sum\limits_{i: X_i \in S^{tr}}(Y_i-\bar{Y})^2 \quad\text{and}\qquad \qquad \qquad \qquad \qquad \qquad \qquad  \\
-       \frac{1}{\#(i:X_i\in L)}\sum\limits_{i: X_i=L}(Y_i-\bar{Y_L})^2+\frac{1}{\#(i: X_i \in R)}\sum\limits_{i:X_i = R}(Y_i-\bar{Y_R})^2
-   \end{aligned}
-  \end{equation*}</span></p></li>
+<li><p>To build Regression tree, we compare</p></li>
 </ul>
+<p><span class="math display">\begin{align*}
+        &amp;\frac{1}{\#(S^{tr})}\sum\limits_{i: X_i \in S^{tr}}(Y_i-\bar{Y})^2 \quad\text{and}\qquad \qquad   \\
+        &amp;\frac{1}{\#(S^{tr})}\biggl[\sum\limits_{i: X_i=L}(Y_i-\bar{Y_L})^2+\sum\limits_{i:X_i = R}(Y_i-\bar{Y_R})^2\biggr]
+\end{align*}</span></p>
 </section>
 <section id="limitations-of-cart-2" class="slide level2">
 <h2>Limitations of CART</h2>
@@ -687,6 +673,18 @@ MSE_\mu(S, S^{tr}, \Pi) = \frac{1}{\#(S)} \sum_{i \in S} \biggl[(Y_i -\hat{\mu}(
 </div>
 </div>
 </div>
+</section>
+<section id="cart-vs-honest" class="slide level2">
+<h2>CART vs Honest</h2>
+<p>Honest Estimation uses two different samples : <span class="math inline">S^{tr}</span> for splitting and <span class="math inline">S^{est}</span> for estimation.</p>
+<h3 id="cart-1">CART</h3>
+<p><span class="math display">
+\hat{\mu}(x;S^{tr},\pi(S^{tr}))=\frac{1}{\#(i \in S^{tr} : X_i \in \textit{l}(x;\pi(S^{tr})))}\sum\limits_{i\in S^{tr}:X_i \in \textit{l}(x;\pi(S^{tr}))}Y_i
+</span></p>
+<h3 id="honest">Honest</h3>
+<p><span class="math display">
+\hat{\mu}(x;{\color{red}S^{est}},\pi(S^{tr}))=\frac{1}{\#(i \in {\color{red}S^{est}} : X_i \in \textit{l}(x;\pi(S^{tr})))}\sum\limits_{i\in {\color{red}S^{est}}:X_i \in \textit{l}(x;\pi(S^{tr}))}Y_i
+</span></p>
 </section>
 <section id="the-honest-criterion" class="slide level2">
 <h2>The Honest Criterion</h2>
