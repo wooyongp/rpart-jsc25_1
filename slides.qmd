@@ -369,6 +369,7 @@ $$
 \mathbb{E}(\overline{Y}_k) \neq  \mathbb{E}(\overline{Y}_k| \left|\overline{Y}_L -\overline{Y}_R \right| > c)
 $$
 
+where $k \in \{L,R\}$
 
 
 ## Limitations of CART
